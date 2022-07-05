@@ -11,7 +11,7 @@ from torch.optim import Adam, SGD
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from dcan.dsets.motion_qc_score import MRIMotionQcScoreDataset
+from dcan.dsets.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
 from dcan.model.luna_model import LunaModel
 from reprex.models import AlexNet3D_Dropout_Regression
 from util.logconf import logging
