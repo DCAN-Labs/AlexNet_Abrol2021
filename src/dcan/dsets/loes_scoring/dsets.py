@@ -22,13 +22,27 @@ CandidateInfoTuple = namedtuple(
 )
 
 
+def get_subject(p):
+    return os.path.split(os.path.split(os.path.split(p)[0])[0])[1][4:]
+
+
+def get_session(p):
+    return os.path.split(os.path.split(p)[0])[1][4:]
+
+
+def get_uid(p):
+    return f'{get_subject(p)}_{get_session(p)}'
+
+
 @functools.lru_cache(1)
 def get_candidate_info_list(require_on_disk_bool=True):
     # We construct a set with all ald_code_uids that are present on disk.
     # This will let us use the data, even if we haven't downloaded all of
     # the subsets yet.
-    mri_list = glob.glob('data-unversioned/loes_scoring/*.nii.gz')
-    present_on_disk_set = {os.path.split(p)[-1][:-7] for p in mri_list}
+    dmri_12dir_mri_list = glob.glob(
+        '/home/feczk001/shared/data/loes_scoring/Loes_score_validated/sub-*/ses-*/dmri_12dir.nii.gz')
+    dmri_12dir_present_on_disk_set = {get_uid(p) for p in dmri_12dir_mri_list}
+    present_on_disk_set = {}
 
     candidate_info_list = []
     with open('data/loes_scoring/validated_loes_scores.csv', "r") as f:
