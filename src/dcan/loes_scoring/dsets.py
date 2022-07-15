@@ -103,3 +103,11 @@ class LoesScoreMRIs:
 @functools.lru_cache(1, typed=True)
 def get_loes_score_mris(subject_session_uid):
     return LoesScoreMRIs(subject_session_uid)
+
+
+@raw_cache.memoize(typed=True)
+def get_mri_raw_candidate(subject_session_uid):
+    loes_score_mris = get_loes_score_mris(subject_session_uid)
+    dmri_12dir_tensor, mprage_image_tensor = loes_score_mris.get_raw_candidate()
+
+    return dmri_12dir_tensor, mprage_image_tensor
