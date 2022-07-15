@@ -3,8 +3,11 @@ import functools
 import glob
 import logging
 import os
+import copy
 from collections import namedtuple
 from datetime import datetime
+from torch.utils.data import Dataset
+import random
 
 import torchio as tio
 
@@ -111,3 +114,41 @@ def get_mri_raw_candidate(subject_session_uid):
     dmri_12dir_tensor, mprage_image_tensor = loes_score_mris.get_raw_candidate()
 
     return dmri_12dir_tensor, mprage_image_tensor
+
+
+class LoesScoreDataset(Dataset):
+    def __init__(self,
+                 val_stride=0,
+                 is_val_set_bool=None,
+                 subject=None,
+                 sortby_str='random',
+                 ):
+        self.candidateInfo_list = copy.copy(get_candidate_info_list())
+
+        if subject:
+            self.candidateInfo_list = [
+                x for x in self.candidateInfo_list if x.ald_code_str == subject
+            ]
+
+        if is_val_set_bool:
+            assert val_stride > 0, val_stride
+            self.candidateInfo_list = self.candidateInfo_list[::val_stride]
+            assert self.candidateInfo_list
+        elif val_stride > 0:
+            del self.candidateInfo_list[::val_stride]
+            assert self.candidateInfo_list
+
+        if sortby_str == 'random':
+            random.shuffle(self.candidateInfo_list)
+        elif sortby_str == 'subject':
+            self.candidateInfo_list = sorted(self.candidateInfo_list, key=CandidateInfoTuple.ald_code_str.fget)
+        elif sortby_str == 'loes_score':
+            pass
+        else:
+            raise Exception("Unknown sort: " + repr(sortby_str))
+
+        log.info("{!r}: {} {} samples".format(
+            self,
+            len(self.candidateInfo_list),
+            "validation" if is_val_set_bool else "training",
+        ))

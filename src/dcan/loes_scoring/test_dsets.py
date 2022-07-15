@@ -1,6 +1,7 @@
 import unittest
 
-from dcan.loes_scoring.dsets import get_candidate_info_list, LoesScoreMRIs, get_loes_score_mris, get_mri_raw_candidate
+from dcan.loes_scoring.dsets import get_candidate_info_list, LoesScoreMRIs, get_loes_score_mris, \
+    get_mri_raw_candidate, LoesScoreDataset
 
 
 class TestDSets(unittest.TestCase):
@@ -23,6 +24,10 @@ class TestDSets(unittest.TestCase):
         mri_raw_candidate = get_mri_raw_candidate('5772LAVA_20180828')
         self.assertIsNotNone(mri_raw_candidate[0])
         self.assertIsNotNone(mri_raw_candidate[0])
+
+    def test_loes_score_dataset_init(self):
+        loes_score_dataset = LoesScoreDataset(val_stride=5)
+        self.assertIsNotNone(loes_score_dataset)
 
 
 if __name__ == '__main__':
