@@ -5,6 +5,8 @@ import logging
 import os
 from collections import namedtuple
 from datetime import datetime
+import torch
+import torchio as tio
 
 from util.disk import getCache
 
@@ -73,3 +75,22 @@ def get_candidate_info_list(require_on_disk_bool=True):
     candidate_info_list.sort(reverse=True)
 
     return candidate_info_list
+
+class LoesScoreMRIs:
+    def __init__(self, subject_session_uid):
+        parts = subject_session_uid.split('_')
+        subject = parts[0]
+        session = parts[1]
+        loes_score_validated_dir = \
+            f'/home/feczk001/shared/data/loes_scoring/Loes_score_validated/sub-{subject}/ses-{session}/'
+        nifti_ext = '.nii.gz'
+
+        dmri_12dir_path = glob.glob('{}dmri_12dir{}'.format(loes_score_validated_dir, nifti_ext))[0]
+        dmri_12dir_image = tio.ScalarImage(dmri_12dir_path)
+        self.dmri_12dir_tensor = dmri_12dir_image.data
+
+        mprage_path = glob.glob('{}mprage{}'.format(loes_score_validated_dir, nifti_ext))[0]
+        mprage_image = tio.ScalarImage(mprage_path)
+        self.mprage_image_tensor = mprage_image.data
+
+        self.subject_session_uid = subject_session_uid
