@@ -5,7 +5,7 @@ import logging
 import os
 from collections import namedtuple
 from datetime import datetime
-import torch
+
 import torchio as tio
 
 from util.disk import getCache
@@ -76,6 +76,7 @@ def get_candidate_info_list(require_on_disk_bool=True):
 
     return candidate_info_list
 
+
 class LoesScoreMRIs:
     def __init__(self, subject_session_uid):
         parts = subject_session_uid.split('_')
@@ -94,3 +95,6 @@ class LoesScoreMRIs:
         self.mprage_image_tensor = mprage_image.data
 
         self.subject_session_uid = subject_session_uid
+
+    def get_raw_candidate(self):
+        return self.dmri_12dir_tensor, self.mprage_image_tensor
