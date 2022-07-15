@@ -98,3 +98,8 @@ class LoesScoreMRIs:
 
     def get_raw_candidate(self):
         return self.dmri_12dir_tensor, self.mprage_image_tensor
+
+
+@functools.lru_cache(1, typed=True)
+def get_loes_score_mris(subject_session_uid):
+    return LoesScoreMRIs(subject_session_uid)

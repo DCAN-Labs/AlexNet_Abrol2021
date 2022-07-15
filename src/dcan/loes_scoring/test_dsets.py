@@ -1,6 +1,6 @@
 import unittest
 
-from dcan.loes_scoring.dsets import get_candidate_info_list, LoesScoreMRIs
+from dcan.loes_scoring.dsets import get_candidate_info_list, LoesScoreMRIs, get_loes_score_mris
 
 
 class TestDSets(unittest.TestCase):
@@ -14,6 +14,10 @@ class TestDSets(unittest.TestCase):
         raw_candidate = loes_score_mris.get_raw_candidate()
         self.assertIsNotNone(raw_candidate[0])
         self.assertIsNotNone(raw_candidate[0])
+
+    def test_get_loes_score_mris(self):
+        loes_score_mris = get_loes_score_mris('5772LAVA_20180828')
+        self.assertIsNotNone(loes_score_mris)
 
 
 if __name__ == '__main__':
