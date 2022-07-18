@@ -164,6 +164,6 @@ class LoesScoreDataset(Dataset):
         # TODO Possibly handle other file types such as diffusion-weighted sequences
         _, mprage_image_tensor = get_mri_raw_candidate(subject_session_uid)
         mprage_image_tensor_3d = torch.squeeze(mprage_image_tensor)
-        # TODO Make sure all have the same size.
+        # TODO Make sure all have the same size.  https://torchio.readthedocs.io/transforms/preprocessing.html#croporpad
 
         return mprage_image_tensor_3d
