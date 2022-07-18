@@ -6,6 +6,8 @@ import os
 import copy
 from collections import namedtuple
 from datetime import datetime
+
+import torch
 from torch.utils.data import Dataset
 import random
 
@@ -155,3 +157,13 @@ class LoesScoreDataset(Dataset):
 
     def __len__(self):
         return len(self.candidateInfo_list)
+
+    def __getitem__(self, ndx):
+        candidate_info = self.candidateInfo_list[ndx]
+        subject_session_uid = candidate_info.ald_code_ses_uid
+        # TODO Possibly handle other file types such as diffusion-weighted sequences
+        _, mprage_image_tensor = get_mri_raw_candidate(subject_session_uid)
+        mprage_image_tensor_3d = torch.squeeze(mprage_image_tensor)
+        # TODO Make sure all have the same size.
+
+        return mprage_image_tensor_3d
