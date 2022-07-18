@@ -152,3 +152,6 @@ class LoesScoreDataset(Dataset):
             len(self.candidateInfo_list),
             "validation" if is_val_set_bool else "training",
         ))
+
+    def __len__(self):
+        return len(self.candidateInfo_list)
