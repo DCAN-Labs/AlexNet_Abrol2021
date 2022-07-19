@@ -389,7 +389,3 @@ class InfantMRITrainingApp:
     #             except Exception as e:
     #                 log.error([min_data, max_data])
     #                 raise
-
-
-if __name__ == '__main__':
-    InfantMRITrainingApp().main()

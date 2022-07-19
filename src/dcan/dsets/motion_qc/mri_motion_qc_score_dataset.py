@@ -1,19 +1,11 @@
 import copy
-import csv
-import functools
-import glob
-import os
 import random
-from collections import namedtuple
 
-import nibabel as nib
-import numpy as np
 import torch
 import torch.cuda
 from torch.utils.data import Dataset
 
-from dcan.dsets.dsets import getCandidateInfoList, getMriRawCandidate
-from util.disk import getCache
+from dcan.dsets.motion_qc.dsets import getCandidateInfoList, getMriRawCandidate
 from util.logconf import logging
 
 log = logging.getLogger(__name__)
@@ -25,10 +17,10 @@ log.setLevel(logging.DEBUG)
 class MRIMotionQcScoreDataset(Dataset):
     def __init__(self,
                  val_stride=0,
-                 isValSet_bool=None,
+                 is_val_set_bool=None,
                  series_uid=None,
                  sortby_str='random',
-            ):
+                 ):
         self.candidateInfo_list = copy.copy(getCandidateInfoList())
 
         if series_uid:
@@ -36,7 +28,7 @@ class MRIMotionQcScoreDataset(Dataset):
                 x for x in self.candidateInfo_list if x.series_uid == series_uid
             ]
 
-        if isValSet_bool:
+        if is_val_set_bool:
             assert val_stride > 0, val_stride
             self.candidateInfo_list = self.candidateInfo_list[::val_stride]
             assert self.candidateInfo_list
@@ -56,21 +48,21 @@ class MRIMotionQcScoreDataset(Dataset):
         log.info("{!r}: {} {} samples".format(
             self,
             len(self.candidateInfo_list),
-            "validation" if isValSet_bool else "training",
+            "validation" if is_val_set_bool else "training",
         ))
 
     def __len__(self):
         return len(self.candidateInfo_list)
 
     def __getitem__(self, ndx):
-        candidateInfo_tup = self.candidateInfo_list[ndx]
+        candidate_info_tup = self.candidateInfo_list[ndx]
 
         candidate_a = getMriRawCandidate(
-            candidateInfo_tup.series_uid,
+            candidate_info_tup.series_uid,
         )
         candidate_t = torch.from_numpy(candidate_a).to(torch.float32)
         candidate_t = candidate_t.unsqueeze(0)
 
-        motion_qc_score_t = torch.tensor(candidateInfo_tup.motionQCscore_int, dtype=torch.double)
+        motion_qc_score_t = torch.tensor(candidate_info_tup.motionQCscore_int, dtype=torch.double)
 
-        return candidate_t, motion_qc_score_t.float(), candidateInfo_tup.series_uid
+        return candidate_t, motion_qc_score_t.float(), candidate_info_tup.series_uid
