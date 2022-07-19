@@ -23,3 +23,6 @@
 /doc/loes_scoring/LAVA.PNG
 /doc/loes_scoring/WYTH.PNG
 /doc/loes_scoring/ZAMC.PNG
+/src/dcan/loes_scoring/data-unversioned/cache/dcan_loes_score/
+/test/data-unversioned/cache/dcan_loes_score/
+/test/data-unversioned/cache/dcan_loes_score/
