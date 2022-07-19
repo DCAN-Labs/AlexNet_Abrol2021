@@ -11,7 +11,7 @@ from torch.optim import Adam, SGD
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from dcan.dsets.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
+from dcan.dsets.motion_qc.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
 from dcan.model.luna_model import LunaModel
 from reprex.models import AlexNet3D_Dropout_Regression
 from util.logconf import logging
@@ -118,7 +118,7 @@ class InfantMRITrainingApp:
             return Adam(self.model.parameters())
         assert False
 
-    def initTrainDl(self):
+    def init_train_dl(self):
         train_ds = MRIMotionQcScoreDataset(
             val_stride=10,
             isValSet_bool=False, )
@@ -136,7 +136,7 @@ class InfantMRITrainingApp:
 
         return train_dl
 
-    def initValDl(self):
+    def init_val_dl(self):
         val_ds = MRIMotionQcScoreDataset(
             val_stride=10,
             isValSet_bool=False,
@@ -155,7 +155,7 @@ class InfantMRITrainingApp:
 
         return val_dl
 
-    def initTensorboardWriters(self):
+    def init_tensorboard_writers(self):
         if self.trn_writer is None:
             log_dir = os.path.join('runs', self.cli_args.tb_prefix, self.time_str)
 
@@ -166,7 +166,7 @@ class InfantMRITrainingApp:
 
     def get_standardized_rmse(self):
         with torch.no_grad():
-            val_dl = self.initValDl()
+            val_dl = self.init_val_dl()
             self.model.eval()
             batch_iter = enumerateWithEstimate(
                 val_dl,
@@ -192,7 +192,7 @@ class InfantMRITrainingApp:
 
     def get_output_distributions(self):
         with torch.no_grad():
-            val_dl = self.initValDl()
+            val_dl = self.init_val_dl()
             self.model.eval()
             batch_iter = enumerateWithEstimate(
                 val_dl,
@@ -225,8 +225,8 @@ class InfantMRITrainingApp:
     def main(self):
         log.info("Starting {}, {}".format(type(self).__name__, self.cli_args))
 
-        train_dl = self.initTrainDl()
-        val_dl = self.initValDl()
+        train_dl = self.init_train_dl()
+        val_dl = self.init_val_dl()
 
         for epoch_ndx in range(1, self.cli_args.epochs + 1):
             log.info("Epoch {} of {}, {}/{} batches of size {}*{}".format(
@@ -238,11 +238,11 @@ class InfantMRITrainingApp:
                 (torch.cuda.device_count() if self.use_cuda else 1),
             ))
 
-            trnMetrics_t = self.doTraining(epoch_ndx, train_dl)
-            self.logMetrics(epoch_ndx, 'trn', trnMetrics_t)
+            self.do_training(epoch_ndx, train_dl)
+            self.log_metrics(epoch_ndx)
 
-            valMetrics_t = self.doValidation(epoch_ndx, val_dl)
-            self.logMetrics(epoch_ndx, 'val', valMetrics_t)
+            self.do_validation(epoch_ndx, val_dl)
+            self.log_metrics(epoch_ndx)
 
         if hasattr(self, 'trn_writer'):
             self.trn_writer.close()
@@ -259,10 +259,10 @@ class InfantMRITrainingApp:
 
         torch.save(self.model.state_dict(), self.cli_args.model_save_location)
 
-    def doTraining(self, epoch_ndx, train_dl):
-        self.initTensorboardWriters()
+    def do_training(self, epoch_ndx, train_dl):
+        self.init_tensorboard_writers()
         self.model.train()
-        trnMetrics_g = torch.zeros(
+        trn_metrics_g = torch.zeros(
             METRICS_SIZE,
             len(train_dl.dataset),
             device=self.device,
@@ -276,11 +276,11 @@ class InfantMRITrainingApp:
         for batch_ndx, batch_tup in batch_iter:
             self.optimizer.zero_grad()
 
-            loss = self.computeBatchLoss(
+            loss = self.compute_batch_loss(
                 batch_ndx,
                 batch_tup,
                 train_dl.batch_size,
-                trnMetrics_g, epoch_ndx, True
+                trn_metrics_g, True
             )
 
             loss.backward()
@@ -295,12 +295,12 @@ class InfantMRITrainingApp:
 
         self.totalTrainingSamples_count += len(train_dl.dataset)
 
-        return trnMetrics_g.to('cpu')
+        return trn_metrics_g.to('cpu')
 
-    def doValidation(self, epoch_ndx, val_dl):
+    def do_validation(self, epoch_ndx, val_dl):
         with torch.no_grad():
             self.model.eval()
-            valMetrics_g = torch.zeros(
+            val_metrics_g = torch.zeros(
                 METRICS_SIZE,
                 len(val_dl.dataset),
                 device=self.device,
@@ -312,12 +312,12 @@ class InfantMRITrainingApp:
                 start_ndx=val_dl.num_workers,
             )
             for batch_ndx, batch_tup in batch_iter:
-                self.computeBatchLoss(
-                    batch_ndx, batch_tup, val_dl.batch_size, valMetrics_g, epoch_ndx, False)
+                self.compute_batch_loss(
+                    batch_ndx, batch_tup, val_dl.batch_size, val_metrics_g, False)
 
-        return valMetrics_g.to('cpu')
+        return val_metrics_g.to('cpu')
 
-    def computeBatchLoss(self, batch_ndx, batch_tup, batch_size, metrics_g, epoch, is_training):
+    def compute_batch_loss(self, batch_ndx, batch_tup, batch_size, metrics_g, is_training):
         input_t, label_t, _series_list = batch_tup
 
         x = input_t.to(self.device, non_blocking=True)
@@ -349,11 +349,9 @@ class InfantMRITrainingApp:
 
         return loss.mean()
 
-    def logMetrics(
+    def log_metrics(
             self,
             epoch_ndx,
-            mode_str,
-            metrics_t,
     ):
         log.info("E{} {}".format(
             epoch_ndx,
