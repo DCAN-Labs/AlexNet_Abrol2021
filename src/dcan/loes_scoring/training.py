@@ -1,3 +1,5 @@
+# Author: Paul Reiners
+
 import argparse
 import datetime
 import os
@@ -15,6 +17,7 @@ from torch.utils.data import DataLoader
 from util.util import enumerateWithEstimate
 from util.logconf import logging
 from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
+from dcan.loes_scoring.dsets import LoesScoreDataset
 
 log = logging.getLogger(__name__)
 # log.setLevel(logging.WARN)
@@ -87,9 +90,9 @@ class LoesScoringTrainingApp:
         # return Adam(self.model.parameters())
 
     def init_train_dl(self):
-        train_ds = LunaDataset(
-            val_stride=10,
-            isValSet_bool=False,
+        train_ds = LoesScoreDataset(
+            val_stride=5,
+            is_val_set_bool=False,
         )
 
         batch_size = self.cli_args.batch_size
