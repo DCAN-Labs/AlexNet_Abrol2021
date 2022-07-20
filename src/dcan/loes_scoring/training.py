@@ -109,9 +109,9 @@ class LoesScoringTrainingApp:
         return train_dl
 
     def init_val_dl(self):
-        val_ds = LunaDataset(
-            val_stride=10,
-            isValSet_bool=True,
+        val_ds = LoesScoreDataset(
+            val_stride=5,
+            is_val_set_bool=True,
         )
 
         batch_size = self.cli_args.batch_size
