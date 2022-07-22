@@ -99,7 +99,7 @@ class LoesScoreMRIs:
         mprage_image = tio.ScalarImage(mprage_path)
         log.info(f'Initial shape of image: {mprage_image.shape}')
         transform = tio.CropOrPad(
-            (256, 256, 256),
+            (208, 300, 320),
         )
         transformed_mprage_image = transform(mprage_image)
         log.info(f'Shape of transformed image: {transformed_mprage_image.shape}')
@@ -169,8 +169,7 @@ class LoesScoreDataset(Dataset):
         subject_session_uid = candidate_info.ald_code_ses_uid
         # TODO Possibly handle other file types such as diffusion-weighted sequences
         _, mprage_image_tensor = get_mri_raw_candidate(subject_session_uid)
-        mprage_image_tensor_3d = torch.squeeze(mprage_image_tensor)
         loes_score = candidate_info.loes_score_pre_transplant_int
         loes_score_t = torch.tensor(loes_score, dtype=torch.long)
 
-        return mprage_image_tensor_3d, loes_score_t
+        return mprage_image_tensor, loes_score_t

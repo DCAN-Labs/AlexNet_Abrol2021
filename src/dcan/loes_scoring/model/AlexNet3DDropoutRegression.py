@@ -1,3 +1,5 @@
+import math
+
 import torch.nn as nn
 
 
@@ -6,25 +8,25 @@ class AlexNet3DDropoutRegression(nn.Module):
     def __init__(self):
         super(AlexNet3DDropoutRegression, self).__init__()
         self.features = nn.Sequential(
-            nn.Conv3d(1, 64, kernel_size=(5, 5), stride=(2, 2), padding=0),
+            nn.Conv3d(1, 64, kernel_size=(5, 5, 5), stride=(2, 2, 2), padding=0),
             nn.BatchNorm3d(64),
             nn.ReLU(inplace=True),
             nn.MaxPool3d(kernel_size=3, stride=3),
 
-            nn.Conv3d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=0),
+            nn.Conv3d(64, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=0),
             nn.BatchNorm3d(128),
             nn.ReLU(inplace=True),
             nn.MaxPool3d(kernel_size=3, stride=3),
 
-            nn.Conv3d(128, 192, kernel_size=(3, 3), padding=1),
+            nn.Conv3d(128, 192, kernel_size=(3, 3, 3), padding=1),
             nn.BatchNorm3d(192),
             nn.ReLU(inplace=True),
 
-            nn.Conv3d(192, 192, kernel_size=(3, 3), padding=1),
+            nn.Conv3d(192, 192, kernel_size=(3, 3, 3), padding=1),
             nn.BatchNorm3d(192),
             nn.ReLU(inplace=True),
 
-            nn.Conv3d(192, 128, kernel_size=(3, 3), padding=1),
+            nn.Conv3d(192, 128, kernel_size=(3, 3, 3), padding=1),
             nn.BatchNorm3d(128),
             nn.ReLU(inplace=True),
             nn.MaxPool3d(kernel_size=3, stride=3),

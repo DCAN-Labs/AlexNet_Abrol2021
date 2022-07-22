@@ -220,12 +220,12 @@ class LoesScoringTrainingApp:
         return val_metrics_g.to('cpu')
 
     def compute_batch_loss(self, batch_ndx, batch_tup, batch_size, metrics_g):
-        input_t, label_t, _series_list, _center_list = batch_tup
+        input_t, label_t = batch_tup
 
         input_g = input_t.to(self.device, non_blocking=True)
         label_g = label_t.to(self.device, non_blocking=True)
 
-        logits_g, probability_g = self.model(input_g)
+        outputs = self.model(input_g)
 
         loss_func = nn.CrossEntropyLoss(reduction='none')
         loss_g = loss_func(
