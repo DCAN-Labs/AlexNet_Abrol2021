@@ -170,5 +170,7 @@ class LoesScoreDataset(Dataset):
         # TODO Possibly handle other file types such as diffusion-weighted sequences
         _, mprage_image_tensor = get_mri_raw_candidate(subject_session_uid)
         mprage_image_tensor_3d = torch.squeeze(mprage_image_tensor)
+        loes_score = candidate_info.loes_score_pre_transplant_int
+        loes_score_t = torch.tensor(loes_score, dtype=torch.long)
 
-        return mprage_image_tensor_3d
+        return mprage_image_tensor_3d, loes_score_t
