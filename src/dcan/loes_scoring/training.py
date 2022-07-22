@@ -225,22 +225,20 @@ class LoesScoringTrainingApp:
         input_g = input_t.to(self.device, non_blocking=True)
         label_g = label_t.to(self.device, non_blocking=True)
 
-        outputs = self.model(input_g)
+        outputs_g = self.model(input_g)
 
-        loss_func = nn.CrossEntropyLoss(reduction='none')
+        loss_func = nn.MSELoss(reduction='none')
         loss_g = loss_func(
-            logits_g,
-            label_g[:, 1],
+            outputs_g[0],
+            label_g,
         )
         start_ndx = batch_ndx * batch_size
         end_ndx = start_ndx + label_t.size(0)
 
         metrics_g[METRICS_LABEL_NDX, start_ndx:end_ndx] = \
-            label_g[:, 1].detach()
-        metrics_g[METRICS_PRED_NDX, start_ndx:end_ndx] = \
-            probability_g[:, 1].detach()
-        metrics_g[METRICS_LOSS_NDX, start_ndx:end_ndx] = \
-            loss_g.detach()
+            label_g.detach()
+        # metrics_g[METRICS_LOSS_NDX, start_ndx:end_ndx] = \
+        #     loss_g.detach()
 
         return loss_g.mean()
 

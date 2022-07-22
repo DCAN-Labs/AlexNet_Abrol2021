@@ -168,8 +168,10 @@ class LoesScoreDataset(Dataset):
         candidate_info = self.candidateInfo_list[ndx]
         subject_session_uid = candidate_info.ald_code_ses_uid
         # TODO Possibly handle other file types such as diffusion-weighted sequences
-        _, mprage_image_tensor = get_mri_raw_candidate(subject_session_uid)
-        loes_score = candidate_info.loes_score_pre_transplant_int
-        loes_score_t = torch.tensor(loes_score, dtype=torch.long)
+        _, candidate_a = get_mri_raw_candidate(subject_session_uid)
+        candidate_t = candidate_a.to(torch.float32)
 
-        return mprage_image_tensor, loes_score_t
+        loes_score = candidate_info.loes_score_pre_transplant_int
+        loes_score_t = torch.tensor(loes_score, dtype=torch.double)
+
+        return candidate_t, loes_score_t
