@@ -270,13 +270,6 @@ class LoesScoringTrainingApp:
         for key, value in metrics_dict.items():
             writer.add_scalar(key, value, self.totalTrainingSamples_count)
 
-        writer.add_pr_curve(
-            'pr',
-            metrics_t[METRICS_LABEL_NDX],
-            metrics_t[METRICS_PRED_NDX],
-            self.totalTrainingSamples_count,
-        )
-
     # def logModelMetrics(self, model):
     #     writer = getattr(self, 'trn_writer')
     #

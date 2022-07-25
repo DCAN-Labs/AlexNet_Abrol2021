@@ -99,7 +99,7 @@ class LoesScoreMRIs:
         mprage_image = tio.ScalarImage(mprage_path)
         log.info(f'Initial shape of image: {mprage_image.shape}')
         transform = tio.CropOrPad(
-            (208, 300, 320),
+            (256, 256, 256),
         )
         transformed_mprage_image = transform(mprage_image)
         log.info(f'Shape of transformed image: {transformed_mprage_image.shape}')
