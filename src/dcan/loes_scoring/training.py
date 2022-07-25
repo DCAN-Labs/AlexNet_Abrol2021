@@ -5,19 +5,16 @@ import datetime
 import os
 import sys
 
-import numpy as np
-
-from torch.utils.tensorboard import SummaryWriter
-
 import torch
 import torch.nn as nn
-from torch.optim import SGD, Adam
+from torch.optim import SGD
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
-from util.util import enumerateWithEstimate
-from util.logconf import logging
-from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
 from dcan.loes_scoring.dsets import LoesScoreDataset
+from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
+from util.logconf import logging
+from util.util import enumerateWithEstimate
 
 log = logging.getLogger(__name__)
 # log.setLevel(logging.WARN)
