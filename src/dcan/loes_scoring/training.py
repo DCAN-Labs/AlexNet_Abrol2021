@@ -229,7 +229,7 @@ class LoesScoringTrainingApp:
 
         loss_func = nn.MSELoss(reduction='none')
         loss_g = loss_func(
-            outputs_g[0],
+            outputs_g[0].squeeze(1),
             label_g,
         )
         start_ndx = batch_ndx * batch_size
@@ -237,8 +237,8 @@ class LoesScoringTrainingApp:
 
         metrics_g[METRICS_LABEL_NDX, start_ndx:end_ndx] = \
             label_g.detach()
-        # metrics_g[METRICS_LOSS_NDX, start_ndx:end_ndx] = \
-        #     loss_g.detach()
+        metrics_g[METRICS_LOSS_NDX, start_ndx:end_ndx] = \
+            loss_g.detach()
 
         return loss_g.mean()
 
@@ -247,7 +247,6 @@ class LoesScoringTrainingApp:
             epoch_ndx,
             mode_str,
             metrics_t,
-            classification_threshold=0.5,
     ):
         self.init_tensorboard_writers()
         log.info("E{} {}".format(
@@ -255,53 +254,13 @@ class LoesScoringTrainingApp:
             type(self).__name__,
         ))
 
-        neg_label_mask = metrics_t[METRICS_LABEL_NDX] <= classification_threshold
-        neg_pred_mask = metrics_t[METRICS_PRED_NDX] <= classification_threshold
-
-        pos_label_mask = ~neg_label_mask
-        pos_pred_mask = ~neg_pred_mask
-
-        neg_count = int(neg_label_mask.sum())
-        pos_count = int(pos_label_mask.sum())
-
-        neg_correct = int((neg_label_mask & neg_pred_mask).sum())
-        pos_correct = int((pos_label_mask & pos_pred_mask).sum())
-
-        metrics_dict = {'loss/all': metrics_t[METRICS_LOSS_NDX].mean(),
-                        'loss/neg': metrics_t[METRICS_LOSS_NDX, neg_label_mask].mean(),
-                        'loss/pos': metrics_t[METRICS_LOSS_NDX, pos_label_mask].mean(),
-                        'correct/all': (pos_correct + neg_correct) / np.float32(metrics_t.shape[1]) * 100,
-                        'correct/neg': neg_correct / np.float32(neg_count) * 100,
-                        'correct/pos': pos_correct / np.float32(pos_count) * 100}
+        metrics_dict = {'loss/all': metrics_t[METRICS_LOSS_NDX].mean()}
 
         log.info(
             ("E{} {:8} {loss/all:.4f} loss, "
-             + "{correct/all:-5.1f}% correct, "
              ).format(
                 epoch_ndx,
                 mode_str,
-                **metrics_dict,
-            )
-        )
-        log.info(
-            ("E{} {:8} {loss/neg:.4f} loss, "
-             + "{correct/neg:-5.1f}% correct ({neg_correct:} of {neg_count:})"
-             ).format(
-                epoch_ndx,
-                mode_str + '_neg',
-                neg_correct=neg_correct,
-                neg_count=neg_count,
-                **metrics_dict,
-            )
-        )
-        log.info(
-            ("E{} {:8} {loss/pos:.4f} loss, "
-             + "{correct/pos:-5.1f}% correct ({pos_correct:} of {pos_count:})"
-             ).format(
-                epoch_ndx,
-                mode_str + '_pos',
-                pos_correct=pos_correct,
-                pos_count=pos_count,
                 **metrics_dict,
             )
         )
@@ -317,33 +276,6 @@ class LoesScoringTrainingApp:
             metrics_t[METRICS_PRED_NDX],
             self.totalTrainingSamples_count,
         )
-
-        bins = [x / 50.0 for x in range(51)]
-
-        neg_hist_mask = neg_label_mask & (metrics_t[METRICS_PRED_NDX] > 0.01)
-        pos_hist_mask = pos_label_mask & (metrics_t[METRICS_PRED_NDX] < 0.99)
-
-        if neg_hist_mask.any():
-            writer.add_histogram(
-                'is_neg',
-                metrics_t[METRICS_PRED_NDX, neg_hist_mask],
-                self.totalTrainingSamples_count,
-                bins=bins,
-            )
-        if pos_hist_mask.any():
-            writer.add_histogram(
-                'is_pos',
-                metrics_t[METRICS_PRED_NDX, pos_hist_mask],
-                self.totalTrainingSamples_count,
-                bins=bins,
-            )
-
-        # score = 1 \
-        #     + metrics_dict['pr/f1_score'] \
-        #     - metrics_dict['loss/mal'] * 0.01 \
-        #     - metrics_dict['loss/all'] * 0.0001
-        #
-        # return score
 
     # def logModelMetrics(self, model):
     #     writer = getattr(self, 'trn_writer')

@@ -172,6 +172,6 @@ class LoesScoreDataset(Dataset):
         candidate_t = candidate_a.to(torch.float32)
 
         loes_score = candidate_info.loes_score_pre_transplant_int
-        loes_score_t = torch.tensor(loes_score, dtype=torch.double)
+        loes_score_t = torch.tensor(float(loes_score))
 
         return candidate_t, loes_score_t
