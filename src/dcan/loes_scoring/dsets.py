@@ -88,7 +88,7 @@ class LoesScoreMRIs:
         subject = parts[0]
         session = parts[1]
         loes_score_validated_dir = \
-            f'/home/feczk001/shared/data/loes_scoring/Loes_score_validated/sub-{subject}/ses-{session}/'
+            f'/home/feczk001/shared/data/loes_scoring/Loes_score/sub-{subject}/ses-{session}/'
         nifti_ext = '.nii.gz'
 
         dmri_12dir_path = glob.glob('{}dmri_12dir{}'.format(loes_score_validated_dir, nifti_ext))[0]

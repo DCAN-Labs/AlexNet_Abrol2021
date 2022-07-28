@@ -10,7 +10,7 @@ class TestDSets(unittest.TestCase):
         self.assertIsNotNone(candidate_info_list)
 
     def test_LoesScoreMRIs_init(self):
-        loes_score_mris = LoesScoreMRIs('5772LAVA_20180828')
+        loes_score_mris = LoesScoreMRIs('7295TASU_20190220')
         self.assertIsNotNone(loes_score_mris)
         raw_candidate = loes_score_mris.get_raw_candidate()
         self.assertIsNotNone(raw_candidate[0])
