@@ -23,7 +23,7 @@ log.setLevel(logging.DEBUG)
 raw_cache = getCache('dcan_loes_score')
 
 CandidateInfoTuple = namedtuple(
-    'CandidateInfoTuple', 'loes_score_float subject_session_uid subject_str session_str session_date')
+    'CandidateInfoTuple', 'loes_score_float subject_session_uid subject_str session_str session_date is_validated')
 
 
 def get_subject(p):
@@ -53,12 +53,10 @@ def get_candidate_info_list(require_on_disk_bool=True):
     scores_csv = '/home/feczk001/shared/data/loes_scoring/Loes_score/Loes_scores.csv'
     with open(scores_csv, "r") as f:
         for row in list(csv.reader(f))[1:]:
-            session_str = row[1].strip()
-            if '_' in session_str:
-                pos = session_str.index('_')
-                session_str = session_str[pos + 1:]
+            subject_session_uid = row[1].strip()
+            pos = subject_session_uid.index('_')
+            session_str = subject_session_uid[pos + 1:]
             subject_str = row[0]
-            subject_session_uid = '_'.join([subject_str, session_str])
 
             if subject_session_uid not in present_on_disk_set and require_on_disk_bool:
                 continue
@@ -68,6 +66,7 @@ def get_candidate_info_list(require_on_disk_bool=True):
                 continue
             loes_score_float = float(loes_score_str)
             session_date = datetime.strptime(session_str, '%Y%m%d')
+            is_validated = int(row[3].strip()) == 1
 
             candidate_info_list.append(CandidateInfoTuple(
                 loes_score_float,
@@ -75,6 +74,7 @@ def get_candidate_info_list(require_on_disk_bool=True):
                 subject_str,
                 session_str,
                 session_date,
+                is_validated
             ))
 
     candidate_info_list.sort(reverse=True)
