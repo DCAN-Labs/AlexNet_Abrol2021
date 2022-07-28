@@ -23,9 +23,7 @@ log.setLevel(logging.DEBUG)
 raw_cache = getCache('dcan_loes_score')
 
 CandidateInfoTuple = namedtuple(
-    'CandidateInfoTuple',
-    'loes_score_pre_transplant_int, ald_code_ses_uid, ald_code_str, mrn_int, ses_date',
-)
+    'CandidateInfoTuple', 'loes_score_float subject_session_uid subject_str session_str session_date')
 
 
 def get_subject(p):
@@ -45,36 +43,38 @@ def get_candidate_info_list(require_on_disk_bool=True):
     # We construct a set with all ald_code_uids that are present on disk.
     # This will let us use the data, even if we haven't downloaded all of
     # the subsets yet.
-    loes_score_validated_path = '/home/feczk001/shared/data/loes_scoring/Loes_score_validated/sub-*/ses-*/'
+    loes_score_images_path = '/home/feczk001/shared/data/loes_scoring/Loes_score/sub-*/ses-*/'
     nifti_ext = '.nii.gz'
-    dmri_12dir_mri_list = glob.glob(f'{loes_score_validated_path}dmri_12dir{nifti_ext}')
-    dmri_12dir_present_on_disk_set = {get_uid(p) for p in dmri_12dir_mri_list}
-    mprage_mri_list = glob.glob(f'{loes_score_validated_path}mprage{nifti_ext}')
+    mprage_mri_list = glob.glob(f'{loes_score_images_path}mprage{nifti_ext}')
     mprage_present_on_disk_set = {get_uid(p) for p in mprage_mri_list}
-    present_on_disk_set = dmri_12dir_present_on_disk_set.intersection(mprage_present_on_disk_set)
+    present_on_disk_set = mprage_present_on_disk_set
 
     candidate_info_list = []
-    scores_csv = '/home/miran045/reine097/projects/AlexNet_Abrol2021/data/loes_scoring/validated_loes_scores.csv'
+    scores_csv = '/home/feczk001/shared/data/loes_scoring/Loes_score/Loes_scores.csv'
     with open(scores_csv, "r") as f:
         for row in list(csv.reader(f))[1:]:
-            ses_str = row[1].strip()
-            mrn_str = row[2].strip()
-            ald_code_str = row[0]
-            ald_code_ses_uid = '_'.join([ald_code_str, ses_str])
+            session_str = row[1].strip()
+            if '_' in session_str:
+                pos = session_str.index('_')
+                session_str = session_str[pos + 1:]
+            subject_str = row[0]
+            subject_session_uid = '_'.join([subject_str, session_str])
 
-            if ald_code_ses_uid not in present_on_disk_set and require_on_disk_bool:
+            if subject_session_uid not in present_on_disk_set and require_on_disk_bool:
                 continue
 
-            mrn_int = int(mrn_str)
-            loes_score_pre_transplant_int = int(row[3])
-            ses_date = datetime.strptime(ses_str, '%Y%m%d')
+            loes_score_str = row[2]
+            if loes_score_str == '':
+                continue
+            loes_score_float = float(loes_score_str)
+            session_date = datetime.strptime(session_str, '%Y%m%d')
 
             candidate_info_list.append(CandidateInfoTuple(
-                loes_score_pre_transplant_int,
-                ald_code_ses_uid,
-                ald_code_str,
-                mrn_int,
-                ses_date,
+                loes_score_float,
+                subject_session_uid,
+                subject_str,
+                session_str,
+                session_date,
             ))
 
     candidate_info_list.sort(reverse=True)
@@ -135,7 +135,7 @@ class LoesScoreDataset(Dataset):
 
         if subject:
             self.candidateInfo_list = [
-                x for x in self.candidateInfo_list if x.ald_code_str == subject
+                x for x in self.candidateInfo_list if x.subject_str == subject
             ]
 
         if is_val_set_bool:
@@ -149,7 +149,7 @@ class LoesScoreDataset(Dataset):
         if sortby_str == 'random':
             random.shuffle(self.candidateInfo_list)
         elif sortby_str == 'subject':
-            self.candidateInfo_list = sorted(self.candidateInfo_list, key=CandidateInfoTuple.ald_code_str.fget)
+            self.candidateInfo_list = sorted(self.candidateInfo_list, key=CandidateInfoTuple.subject_str.fget)
         elif sortby_str == 'loes_score':
             pass
         else:
@@ -166,12 +166,12 @@ class LoesScoreDataset(Dataset):
 
     def __getitem__(self, ndx):
         candidate_info = self.candidateInfo_list[ndx]
-        subject_session_uid = candidate_info.ald_code_ses_uid
+        subject_session_uid = candidate_info.subject_session_uid
         # TODO Possibly handle other file types such as diffusion-weighted sequences
         _, candidate_a = get_mri_raw_candidate(subject_session_uid)
         candidate_t = candidate_a.to(torch.float32)
 
-        loes_score = candidate_info.loes_score_pre_transplant_int
-        loes_score_t = torch.tensor(float(loes_score))
+        loes_score = candidate_info.loes_score_float
+        loes_score_t = torch.tensor(loes_score)
 
         return candidate_t, loes_score_t
