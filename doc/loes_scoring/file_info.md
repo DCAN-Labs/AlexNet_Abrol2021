@@ -31,4 +31,4 @@
  '[320, 320, 32]' '[320, 320, 33]' '[320, 320, 16]' '[290, 320, 31]'
  '[320, 320, 29]' '[270, 320, 29]']
 
-The code for generating this image is largely [here](https://github.com/DCAN-Labs/AlexNet_Abrol2021/blob/master/src/util/image_analysis.py).
+The code for generating this image is largely in src/util/image_analysis.py.
