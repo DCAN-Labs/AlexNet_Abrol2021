@@ -26,10 +26,10 @@ class TestDSets(unittest.TestCase):
         self.assertIsNotNone(mri_raw_candidate[0])
 
     def test_loes_score_dataset_init(self):
-        loes_score_dataset = LoesScoreDataset(val_stride=5)
+        loes_score_dataset = LoesScoreDataset(val_stride=10)
         self.assertIsNotNone(loes_score_dataset)
         length = loes_score_dataset.__len__()
-        self.assertEqual(4, length)
+        self.assertEqual(133, length)
         for i in range(length):
             item = loes_score_dataset.__getitem__(i)
             self.assertIsNotNone(item)

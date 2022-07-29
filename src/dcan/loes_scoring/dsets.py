@@ -87,23 +87,40 @@ class LoesScoreMRIs:
         parts = subject_session_uid.split('_')
         subject = parts[0]
         session = parts[1]
-        loes_score_validated_dir = \
-            f'/home/feczk001/shared/data/loes_scoring/Loes_score/sub-{subject}/ses-{session}/'
+        loes_score_dir = f'/home/feczk001/shared/data/loes_scoring/Loes_score/sub-{subject}/ses-{session}/'
         nifti_ext = '.nii.gz'
 
-        dmri_12dir_path = glob.glob('{}dmri_12dir{}'.format(loes_score_validated_dir, nifti_ext))[0]
-        dmri_12dir_image = tio.ScalarImage(dmri_12dir_path)
-        self.dmri_12dir_tensor = dmri_12dir_image.data
+        dmri_12dir_files = glob.glob('{}dmri_12dir{}'.format(loes_score_dir, nifti_ext))
+        if len(dmri_12dir_files) > 0:
+            dmri_12dir_path = dmri_12dir_files[0]
+            dmri_12dir_image = tio.ScalarImage(dmri_12dir_path)
+            self.dmri_12dir_tensor = dmri_12dir_image.data
+        else:
+            self.dmri_12dir_tensor = torch.zeros(32, 128, 128, 88)
 
-        mprage_path = glob.glob('{}mprage{}'.format(loes_score_validated_dir, nifti_ext))[0]
-        mprage_image = tio.ScalarImage(mprage_path)
-        log.info(f'Initial shape of image: {mprage_image.shape}')
-        transform = tio.CropOrPad(
-            (256, 256, 256),
-        )
-        transformed_mprage_image = transform(mprage_image)
-        log.info(f'Shape of transformed image: {transformed_mprage_image.shape}')
-        self.mprage_image_tensor = transformed_mprage_image.data
+        mprage_files = glob.glob('{}mprage{}'.format(loes_score_dir, nifti_ext))
+        if len(mprage_files) > 0:
+            mprage_path = mprage_files[0]
+            mprage_image = tio.ScalarImage(mprage_path)
+            transform = tio.CropOrPad(
+                (256, 256, 256),
+            )
+            transformed_mprage_image = transform(mprage_image)
+            self.mprage_image_tensor = transformed_mprage_image.data
+        else:
+            self.mprage_image_tensor = torch.zeros(256, 256, 256)
+
+        swi_files = glob.glob('{}swi{}'.format(loes_score_dir, nifti_ext))
+        if len(swi_files) > 0:
+            swi_path = swi_files[0]
+            swi_image = tio.ScalarImage(swi_path)
+            transform = tio.CropOrPad(
+                (256, 256, 256),
+            )
+            transformed_swi_image = transform(swi_image)
+            self.swi_image_tensor = transformed_swi_image.data
+        else:
+            self.swi_image_tensor = torch.zeros(256, 256, 256)
 
         self.subject_session_uid = subject_session_uid
 
