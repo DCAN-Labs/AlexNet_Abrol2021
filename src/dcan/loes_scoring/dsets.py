@@ -50,7 +50,7 @@ def get_candidate_info_list(require_on_disk_bool=True):
     present_on_disk_set = mprage_present_on_disk_set
 
     candidate_info_list = []
-    scores_csv = '/home/feczk001/shared/data/loes_scoring/Loes_score/Loes_scores.csv'
+    scores_csv = '/home/feczk001/shared/data/loes_scoring/Loes_score/loes_scores.csv'
     with open(scores_csv, "r") as f:
         for row in list(csv.reader(f))[1:]:
             subject_session_uid = row[1].strip()

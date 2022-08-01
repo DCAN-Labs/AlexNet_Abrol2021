@@ -88,7 +88,7 @@ class LoesScoringTrainingApp:
 
     def init_train_dl(self):
         train_ds = LoesScoreDataset(
-            val_stride=5,
+            val_stride=10,
             is_val_set_bool=False,
         )
 
@@ -107,7 +107,7 @@ class LoesScoringTrainingApp:
 
     def init_val_dl(self):
         val_ds = LoesScoreDataset(
-            val_stride=5,
+            val_stride=10,
             is_val_set_bool=True,
         )
 
