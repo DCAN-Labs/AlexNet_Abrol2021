@@ -1,8 +1,6 @@
-import argparse
 import datetime
 import os
 import statistics
-import sys
 from math import sqrt
 
 import torch
@@ -11,6 +9,7 @@ from torch.optim import Adam, SGD
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+from TrainingApp import TrainingApp
 from dcan.dsets.motion_qc.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
 from dcan.loes_scoring.model.luna_model import LunaModel
 from reprex.models import AlexNet3D_Dropout_Regression
@@ -29,62 +28,44 @@ METRICS_LOSS_NDX = 2
 METRICS_SIZE = 3
 
 
-class InfantMRIMotionQCTrainingApp:
+class InfantMRIMotionQCTrainingApp(TrainingApp):
     def __init__(self, sys_argv=None):
-        if sys_argv is None:
-            sys_argv = sys.argv[1:]
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--num-workers',
-                            help='Number of worker processes for background data loading',
-                            default=8,
-                            type=int,
-                            )
-        parser.add_argument('--batch-size',
-                            help='Batch size to use for training',
-                            default=32,
-                            type=int,
-                            )
-        parser.add_argument('--epochs',
-                            help='Number of epochs to train for',
-                            default=1,
-                            type=int,
-                            )
+        super().__init__()
+        self.parser.add_argument('--tb-prefix',
+                                 default='dcan',
+                                 help="Data prefix to use for Tensorboard run. Defaults to dcan.",
+                                 )
 
-        parser.add_argument('--tb-prefix',
-                            default='dcan',
-                            help="Data prefix to use for Tensorboard run. Defaults to dcan.",
-                            )
+        self.parser.add_argument('--dset',
+                                 help="Name of Dataset.",
+                                 default='MRIMotionQcScoreDataset',
+                                 )
 
-        parser.add_argument('--dset',
-                            help="Name of Dataset.",
-                            default='MRIMotionQcScoreDataset',
-                            )
+        self.parser.add_argument('comment',
+                                 help="Comment suffix for Tensorboard run.",
+                                 nargs='?',
+                                 default='loes_scoring',
+                                 )
 
-        parser.add_argument('comment',
-                            help="Comment suffix for Tensorboard run.",
-                            nargs='?',
-                            default='loes_scoring',
-                            )
+        self.parser.add_argument('--model',
+                                 help="Model type.",
+                                 default='AlexNet',
+                                 )
 
-        parser.add_argument('--model',
-                            help="Model type.",
-                            default='AlexNet',
-                            )
-
-        parser.add_argument('--optimizer',
-                            help="optimizer type.",
-                            default='Adam',
-                            )
+        self.parser.add_argument('--optimizer',
+                                 help="optimizer type.",
+                                 default='Adam',
+                                 )
 
         self.time_str = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
         # See https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference
-        parser.add_argument('--model-save-location',
-                            help="Where to save the trained model.",
-                            default=f'./model-{self.time_str}.pt',
-                            )
+        self.parser.add_argument('--model-save-location',
+                                 help="Where to save the trained model.",
+                                 default=f'./model-{self.time_str}.pt',
+                                 )
 
-        self.cli_args = parser.parse_args(sys_argv)
+        self.cli_args = self.parser.parse_args(sys_argv)
 
         self.trn_writer = None
         self.val_writer = None
@@ -159,6 +140,29 @@ class InfantMRIMotionQCTrainingApp:
             self.val_writer = SummaryWriter(
                 log_dir=log_dir + '-val_reg-' + self.cli_args.comment)
 
+    def get_output_distributions(self):
+        with torch.no_grad():
+            val_dl = self.init_val_dl()
+            self.model.eval()
+            batch_iter = enumerateWithEstimate(
+                val_dl,
+                "get_output_distributions",
+                start_ndx=val_dl.num_workers,
+            )
+            distributions = {1: [], 2: [], 3: [], 4: []}
+            for batch_ndx, batch_tup in batch_iter:
+                input_t, label_t, _ = batch_tup
+                x = input_t.to(self.device, non_blocking=True)
+                labels = label_t.to(self.device, non_blocking=True)
+                outputs = self.model(x)
+                actual = self.get_actual(outputs).tolist()
+                n = len(labels)
+                for i in range(n):
+                    label_int = int(labels[i].item())
+                    distributions[label_int].append(actual[i])
+
+        return distributions
+
     def get_standardized_rmse(self):
         with torch.no_grad():
             val_dl = self.init_val_dl()
@@ -184,38 +188,6 @@ class InfantMRIMotionQCTrainingApp:
             sigma = statistics.stdev(prediction_list)
 
             return rmse / sigma
-
-    def get_output_distributions(self):
-        with torch.no_grad():
-            val_dl = self.init_val_dl()
-            self.model.eval()
-            batch_iter = enumerateWithEstimate(
-                val_dl,
-                "get_output_distributions",
-                start_ndx=val_dl.num_workers,
-            )
-            distributions = {1: [], 2: [], 3: [], 4: []}
-            for batch_ndx, batch_tup in batch_iter:
-                input_t, label_t, _ = batch_tup
-                x = input_t.to(self.device, non_blocking=True)
-                labels = label_t.to(self.device, non_blocking=True)
-                outputs = self.model(x)
-                actual = self.get_actual(outputs).tolist()
-                n = len(labels)
-                for i in range(n):
-                    label_int = int(labels[i].item())
-                    distributions[label_int].append(actual[i])
-
-        return distributions
-
-    def get_actual(self, outputs):
-        if self.cli_args.model.lower() == 'alexnet':
-            # AlexNet
-            actual = outputs[0].squeeze(1)
-        else:
-            # Luna
-            actual = outputs.squeeze(1)
-        return actual
 
     def main(self):
         log.info("Starting {}, {}".format(type(self).__name__, self.cli_args))

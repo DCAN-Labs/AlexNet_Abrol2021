@@ -1,16 +1,17 @@
 # Author: Paul Reiners
 
-import argparse
 import datetime
 import os
-import sys
+import statistics
+from math import sqrt
 
 import torch
 import torch.nn as nn
-from torch.optim import SGD
+from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+from TrainingApp import TrainingApp
 from dcan.loes_scoring.dsets import LoesScoreDataset
 from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
 from util.logconf import logging
@@ -28,39 +29,20 @@ METRICS_LOSS_NDX = 2
 METRICS_SIZE = 3
 
 
-class LoesScoringTrainingApp:
+class LoesScoringTrainingApp(TrainingApp):
     def __init__(self, sys_argv=None):
-        if sys_argv is None:
-            sys_argv = sys.argv[1:]
+        super().__init__()
+        self.parser.add_argument('--tb-prefix',
+                                 default='loes_scoring',
+                                 help="Data prefix to use for Tensorboard run. Defaults to loes_scoring.",
+                                 )
 
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--num-workers',
-                            help='Number of worker processes for background data loading',
-                            default=8,
-                            type=int,
-                            )
-        parser.add_argument('--batch-size',
-                            help='Batch size to use for training',
-                            default=32,
-                            type=int,
-                            )
-        parser.add_argument('--epochs',
-                            help='Number of epochs to train for',
-                            default=1,
-                            type=int,
-                            )
-
-        parser.add_argument('--tb-prefix',
-                            default='loes_scoring',
-                            help="Data prefix to use for Tensorboard run. Defaults to loes_scoring.",
-                            )
-
-        parser.add_argument('comment',
-                            help="Comment suffix for Tensorboard run.",
-                            nargs='?',
-                            default='dcan',
-                            )
-        self.cli_args = parser.parse_args(sys_argv)
+        self.parser.add_argument('comment',
+                                 help="Comment suffix for Tensorboard run.",
+                                 nargs='?',
+                                 default='dcan',
+                                 )
+        self.cli_args = self.parser.parse_args(sys_argv)
         self.time_str = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
 
         self.trn_writer = None
@@ -83,8 +65,8 @@ class LoesScoringTrainingApp:
         return model
 
     def init_optimizer(self):
-        return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
-        # return Adam(self.model.parameters())
+        # return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
+        return Adam(self.model.parameters())
 
     def init_train_dl(self):
         train_ds = LoesScoreDataset(
@@ -133,6 +115,32 @@ class LoesScoringTrainingApp:
             self.val_writer = SummaryWriter(
                 log_dir=log_dir + '-val_cls-' + self.cli_args.comment)
 
+    def get_standardized_rmse(self):
+        with torch.no_grad():
+            val_dl = self.init_val_dl()
+            self.model.eval()
+            batch_iter = enumerateWithEstimate(
+                val_dl,
+                "get_standardized_rmse",
+                start_ndx=val_dl.num_workers,
+            )
+            squares_list = []
+            prediction_list = []
+            for batch_ndx, batch_tup in batch_iter:
+                input_t, label_t = batch_tup
+                x = input_t.to(self.device, non_blocking=True)
+                labels = label_t.to(self.device, non_blocking=True)
+                outputs = self.model(x)
+                actual = self.get_actual(outputs)
+                prediction_list.extend(actual.tolist())
+                difference = torch.subtract(labels, actual)
+                squares = torch.square(difference)
+                squares_list.extend(squares.tolist())
+            rmse = sqrt(sum(squares_list) / len(squares_list))
+            sigma = statistics.stdev(prediction_list)
+
+            return rmse / sigma
+
     def main(self):
         log.info("Starting {}, {}".format(type(self).__name__, self.cli_args))
 
@@ -158,6 +166,12 @@ class LoesScoringTrainingApp:
         if hasattr(self, 'trn_writer'):
             self.trn_writer.close()
             self.val_writer.close()
+
+        try:
+            standardized_rmse = self.get_standardized_rmse()
+            log.info(f'standardized_rmse: {standardized_rmse}')
+        except ZeroDivisionError as err:
+            log.error(f'Could not compute stanardized RMSE because sigma is 0: {err}')
 
     def do_training(self, epoch_ndx, train_dl):
         self.model.train()
