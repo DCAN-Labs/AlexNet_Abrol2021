@@ -14,7 +14,7 @@
 #SBATCH -e loes-scoring-alex-net-%j.err
 #SBATCH -o loes-scoring-alex-net-%j.out
 
-#SBATCH -A rando149
+#SBATCH -A feczk001
 
 cd /home/miran045/reine097/projects/AlexNet_Abrol2021 || exit
 export PYTHONPATH=PYTHONPATH:"/home/miran045/reine097/projects/AlexNet_Abrol2021/src"

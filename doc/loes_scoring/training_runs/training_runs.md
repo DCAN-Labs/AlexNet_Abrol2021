@@ -2,6 +2,7 @@
 
 ## Run 1
 
+* standardized_rmse: 1.1676927301825617
 * Mean square error (validation): 19.85
 * Epochs: 1024
 
