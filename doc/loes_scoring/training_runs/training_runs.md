@@ -1,9 +1,10 @@
 # Training runs
 
-## Run 1
+All scores are for the validation set.
 
+## Run 1
 * standardized_rmse: 1.1676927301825617
-* Mean square error (validation): 19.85
+* Mean square error: 19.85
 * Epochs: 1024
 
 ## Run 0
