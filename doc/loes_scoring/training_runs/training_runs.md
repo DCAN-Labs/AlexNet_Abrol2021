@@ -9,5 +9,13 @@ All scores are for the validation set.
 
 ## Run 0
 
-* Mean square error (validation): 21.93
+* Mean square error: 21.93
 * Epochs: 512
+
+
+## Run 2
+
+* standardized_rmse: 2.0713074787105747
+* Mean square error: 22.41
+* Epochs: 512
+* Weighted loss of non-0 cases by twice as much
