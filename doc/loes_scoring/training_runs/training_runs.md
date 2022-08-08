@@ -6,6 +6,7 @@ All scores are for the validation set.
 * standardized_rmse: 1.1676927301825617
 * Mean square error: 19.85
 * Epochs: 1024
+![Loes score predictions](./loes_score_prediction_run01.png "Loes score predictions")
 
 ## Run 0
 

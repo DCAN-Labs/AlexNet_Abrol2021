@@ -141,6 +141,33 @@ class LoesScoringTrainingApp(TrainingApp):
 
             return rmse / sigma
 
+    def get_output_distributions(self):
+        with torch.no_grad():
+            val_dl = self.init_val_dl()
+            self.model.eval()
+            batch_iter = enumerateWithEstimate(
+                val_dl,
+                "get_output_distributions",
+                start_ndx=val_dl.num_workers,
+            )
+            distributions = dict()
+            for batch_ndx, batch_tup in batch_iter:
+                input_t, label_t = batch_tup
+                x = input_t.to(self.device, non_blocking=True)
+                labels = label_t.to(self.device, non_blocking=True)
+                outputs = self.model(x)
+                predictions = self.get_actual(outputs).tolist()
+                n = len(labels)
+                for i in range(n):
+                    label_int = int(labels[i].item())
+                    if label_int not in distributions:
+                        distributions[label_int] = []
+                    distributions[label_int].append(predictions[i])
+            sorted_distributions = sorted(distributions.items(), key=lambda item: item[0])
+
+            return sorted_distributions
+
+
     def main(self):
         log.info("Starting {}, {}".format(type(self).__name__, self.cli_args))
 
@@ -172,6 +199,9 @@ class LoesScoringTrainingApp(TrainingApp):
             log.info(f'standardized_rmse: {standardized_rmse}')
         except ZeroDivisionError as err:
             log.error(f'Could not compute stanardized RMSE because sigma is 0: {err}')
+
+        output_distributions = self.get_output_distributions()
+        log.info(f'output_distributions: {output_distributions}')
 
     def do_training(self, epoch_ndx, train_dl):
         self.model.train()
