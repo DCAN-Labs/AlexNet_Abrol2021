@@ -52,7 +52,7 @@ class CandidateInfoTuple:
             return \
                 os.path.join(
                     loes_scoring_folder, 'Loes_score_augmented', subject_session_folder,
-                    f'mprage_{self.session_str}.nii.gz')
+                    f'mprage_{self.augmentation_index}.nii.gz')
         else:
             return os.path.join(loes_scoring_folder, 'Loes_score', subject_session_folder, 'mprage.nii.gz')
 

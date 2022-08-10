@@ -1,5 +1,5 @@
 # Author: Paul Reiners
-
+import argparse
 import datetime
 import os
 import statistics
@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from TrainingApp import TrainingApp
-from dcan.loes_scoring.dsets import LoesScoreDataset
+from dcan.loes_scoring.data_sets.dsets import LoesScoreDataset
 
 from dcan.loes_scoring.data_sets.dsets_with_image_augmentation import LoesScoreDatasetWithImageAugmentation
 from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
@@ -38,7 +38,7 @@ class LoesScoringTrainingApp(TrainingApp):
                                  default='loes_scoring',
                                  help="Data prefix to use for Tensorboard run. Defaults to loes_scoring.",
                                  )
-
+        self.parser.add_argument('--image-augmentation', action=argparse.BooleanOptionalAction)
         self.parser.add_argument('comment',
                                  help="Comment suffix for Tensorboard run.",
                                  nargs='?',
@@ -179,7 +179,8 @@ class LoesScoringTrainingApp(TrainingApp):
     def main(self):
         log.info("Starting {}, {}".format(type(self).__name__, self.cli_args))
 
-        train_dl = self.init_train_dl()
+        use_image_augmentation = self.cli_args.image_augmentation
+        train_dl = self.init_train_dl(use_image_augmentation)
         val_dl = self.init_val_dl()
 
         for epoch_ndx in range(1, self.cli_args.epochs + 1):
