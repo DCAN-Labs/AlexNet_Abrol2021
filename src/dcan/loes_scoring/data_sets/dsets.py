@@ -1,17 +1,16 @@
+import copy
 import csv
 import functools
 import glob
 import logging
 import os
-import copy
-from collections import namedtuple
+import random
+from dataclasses import dataclass, field
 from datetime import datetime
 
 import torch
-from torch.utils.data import Dataset
-import random
-
 import torchio as tio
+from torch.utils.data import Dataset
 
 from util.disk import getCache
 
@@ -22,8 +21,40 @@ log.setLevel(logging.DEBUG)
 
 raw_cache = getCache('dcan_loes_score')
 
-CandidateInfoTuple = namedtuple(
-    'CandidateInfoTuple', 'loes_score_float subject_session_uid subject_str session_str session_date is_validated')
+
+@dataclass(order=True)
+class CandidateInfoTuple:
+    """Class for keeping track subject/session info."""
+    loes_score_float: float
+    subject_session_uid: str
+    subject_str: str
+    session_str: str
+    session_date: datetime
+    is_validated: bool
+    augmentation_index: int = None
+    sort_index: float = field(init=False, repr=False)
+
+    def __hash__(self):
+        return hash(self.subject_session_uid)
+
+    @property
+    def subject(self) -> str:
+        return self.subject_str
+
+    def __post_init__(self):
+        # sort by Loes score
+        self.sort_index = self.loes_score_float
+
+    def path_to_file(self) -> str:
+        loes_scoring_folder = '/home/feczk001/shared/data/loes_scoring'
+        subject_session_folder = f'sub-{self.subject_str}/ses-{self.session_str}'
+        if self.augmentation_index:
+            return \
+                os.path.join(
+                    loes_scoring_folder, 'Loes_score_augmented', subject_session_folder,
+                    f'mprage_{self.session_str}.nii.gz')
+        else:
+            return os.path.join(loes_scoring_folder, 'Loes_score', subject_session_folder, 'mprage.nii.gz')
 
 
 def get_subject(p):
@@ -53,21 +84,14 @@ def get_candidate_info_list(require_on_disk_bool=True):
     scores_csv = '/home/feczk001/shared/data/loes_scoring/Loes_score/loes_scores.csv'
     with open(scores_csv, "r") as f:
         for row in list(csv.reader(f))[1:]:
-            subject_session_uid = row[1].strip()
-            pos = subject_session_uid.index('_')
-            session_str = subject_session_uid[pos + 1:]
-            subject_str = row[0]
-
+            session_str, subject_session_uid, subject_str, loes_score_str = get_subject_session_info(row)
             if subject_session_uid not in present_on_disk_set and require_on_disk_bool:
                 continue
-
-            loes_score_str = row[2]
             if loes_score_str == '':
                 continue
             loes_score_float = float(loes_score_str)
             session_date = datetime.strptime(session_str, '%Y%m%d')
             is_validated = int(row[3].strip()) == 1
-
             candidate_info_list.append(CandidateInfoTuple(
                 loes_score_float,
                 subject_session_uid,
@@ -82,63 +106,42 @@ def get_candidate_info_list(require_on_disk_bool=True):
     return candidate_info_list
 
 
+def get_subject_session_info(row):
+    subject_session_uid = row[1].strip()
+    pos = subject_session_uid.index('_')
+    session_str = subject_session_uid[pos + 1:]
+    subject_str = row[0]
+    loes_score_str = row[2]
+    return session_str, subject_session_uid, subject_str, loes_score_str
+
+
 class LoesScoreMRIs:
-    def __init__(self, subject_session_uid):
-        parts = subject_session_uid.split('_')
-        subject = parts[0]
-        session = parts[1]
-        loes_score_dir = f'/home/feczk001/shared/data/loes_scoring/Loes_score/sub-{subject}/ses-{session}/'
-        nifti_ext = '.nii.gz'
+    def __init__(self, candidate_info):
+        mprage_path = candidate_info.path_to_file()
+        mprage_image = tio.ScalarImage(mprage_path)
+        transform = tio.CropOrPad(
+            (256, 256, 256),
+        )
+        transformed_mprage_image = transform(mprage_image)
+        self.mprage_image_tensor = transformed_mprage_image.data
 
-        dmri_12dir_files = glob.glob('{}dmri_12dir{}'.format(loes_score_dir, nifti_ext))
-        if len(dmri_12dir_files) > 0:
-            dmri_12dir_path = dmri_12dir_files[0]
-            dmri_12dir_image = tio.ScalarImage(dmri_12dir_path)
-            self.dmri_12dir_tensor = dmri_12dir_image.data
-        else:
-            self.dmri_12dir_tensor = torch.zeros(32, 128, 128, 88)
-
-        mprage_files = glob.glob('{}mprage{}'.format(loes_score_dir, nifti_ext))
-        if len(mprage_files) > 0:
-            mprage_path = mprage_files[0]
-            mprage_image = tio.ScalarImage(mprage_path)
-            transform = tio.CropOrPad(
-                (256, 256, 256),
-            )
-            transformed_mprage_image = transform(mprage_image)
-            self.mprage_image_tensor = transformed_mprage_image.data
-        else:
-            self.mprage_image_tensor = torch.zeros(256, 256, 256)
-
-        swi_files = glob.glob('{}swi{}'.format(loes_score_dir, nifti_ext))
-        if len(swi_files) > 0:
-            swi_path = swi_files[0]
-            swi_image = tio.ScalarImage(swi_path)
-            transform = tio.CropOrPad(
-                (256, 256, 256),
-            )
-            transformed_swi_image = transform(swi_image)
-            self.swi_image_tensor = transformed_swi_image.data
-        else:
-            self.swi_image_tensor = torch.zeros(256, 256, 256)
-
-        self.subject_session_uid = subject_session_uid
+        self.subject_session_uid = candidate_info
 
     def get_raw_candidate(self):
-        return self.dmri_12dir_tensor, self.mprage_image_tensor
+        return self.mprage_image_tensor
 
 
 @functools.lru_cache(1, typed=True)
-def get_loes_score_mris(subject_session_uid):
-    return LoesScoreMRIs(subject_session_uid)
+def get_loes_score_mris(candidate_info):
+    return LoesScoreMRIs(candidate_info)
 
 
 @raw_cache.memoize(typed=True)
 def get_mri_raw_candidate(subject_session_uid):
     loes_score_mris = get_loes_score_mris(subject_session_uid)
-    dmri_12dir_tensor, mprage_image_tensor = loes_score_mris.get_raw_candidate()
+    mprage_image_tensor = loes_score_mris.get_raw_candidate()
 
-    return dmri_12dir_tensor, mprage_image_tensor
+    return mprage_image_tensor
 
 
 class LoesScoreDataset(Dataset):
@@ -165,8 +168,6 @@ class LoesScoreDataset(Dataset):
 
         if sortby_str == 'random':
             random.shuffle(self.candidateInfo_list)
-        elif sortby_str == 'subject':
-            self.candidateInfo_list = sorted(self.candidateInfo_list, key=CandidateInfoTuple.subject_str.fget)
         elif sortby_str == 'loes_score':
             pass
         else:
@@ -183,9 +184,8 @@ class LoesScoreDataset(Dataset):
 
     def __getitem__(self, ndx):
         candidate_info = self.candidateInfo_list[ndx]
-        subject_session_uid = candidate_info.subject_session_uid
         # TODO Possibly handle other file types such as diffusion-weighted sequences
-        _, candidate_a = get_mri_raw_candidate(subject_session_uid)
+        candidate_a = get_mri_raw_candidate(candidate_info)
         candidate_t = candidate_a.to(torch.float32)
 
         loes_score = candidate_info.loes_score_float

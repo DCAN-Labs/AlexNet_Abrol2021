@@ -13,6 +13,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 from TrainingApp import TrainingApp
 from dcan.loes_scoring.dsets import LoesScoreDataset
+
+from dcan.loes_scoring.data_sets.dsets_with_image_augmentation import LoesScoreDatasetWithImageAugmentation
 from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
 from util.logconf import logging
 from util.util import enumerateWithEstimate
@@ -68,11 +70,17 @@ class LoesScoringTrainingApp(TrainingApp):
         # return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
         return Adam(self.model.parameters())
 
-    def init_train_dl(self):
-        train_ds = LoesScoreDataset(
-            val_stride=10,
-            is_val_set_bool=False,
-        )
+    def init_train_dl(self, use_image_augmentation=False):
+        if use_image_augmentation:
+            train_ds = LoesScoreDatasetWithImageAugmentation(
+                val_stride=10,
+                is_val_set_bool=False,
+            )
+        else:
+            train_ds = LoesScoreDataset(
+                val_stride=10,
+                is_val_set_bool=False,
+            )
 
         batch_size = self.cli_args.batch_size
         if self.use_cuda:
