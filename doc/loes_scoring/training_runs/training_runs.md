@@ -26,5 +26,5 @@ All scores are for the validation set.
 * Mean square error: 27.1381
 * Epochs: 1024
 * Image augmentation: 
-    * `tio.RandomElasticDeformation(num_control_points=7, locked_borders=2)`
+    * [`tio.RandomElasticDeformation(num_control_points=7, locked_borders=2)`](https://torchio.readthedocs.io/transforms/augmentation.html#randomelasticdeformation)
 ![Loes score predictions](./loes_score_prediction_run03.png "Loes score predictions")
