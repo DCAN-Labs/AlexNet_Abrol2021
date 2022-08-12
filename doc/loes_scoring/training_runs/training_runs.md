@@ -13,10 +13,18 @@ All scores are for the validation set.
 * Mean square error: 21.93
 * Epochs: 512
 
-
 ## Run 2
 
 * standardized_rmse: 2.0713074787105747
 * Mean square error: 22.41
 * Epochs: 512
 * Weighted loss of non-0 cases by twice as much
+
+## Run 3
+
+* standardized_rmse: 2.491876086736497
+* Mean square error: 27.1381
+* Epochs: 1024
+* Image augmentation: 
+    * `tio.RandomElasticDeformation(num_control_points=7, locked_borders=2)`
+![Loes score predictions](./loes_score_prediction_run03.png "Loes score predictions")

@@ -4,6 +4,7 @@ import datetime
 import os
 import statistics
 from math import sqrt
+import numpy as num
 
 import torch
 import torch.nn as nn
@@ -183,6 +184,11 @@ class LoesScoringTrainingApp(TrainingApp):
         train_dl = self.init_train_dl(use_image_augmentation)
         val_dl = self.init_val_dl()
 
+        early_stop = False
+        val_loss = 0
+        min_val_loss = num.Inf
+        epochs_no_improve = 0
+        n_epochs_stop = 8
         for epoch_ndx in range(1, self.cli_args.epochs + 1):
             log.info("Epoch {} of {}, {}/{} batches of size {}*{}".format(
                 epoch_ndx,
@@ -198,6 +204,20 @@ class LoesScoringTrainingApp(TrainingApp):
 
             val_metrics_t = self.do_validation(epoch_ndx, val_dl)
             self.log_metrics(epoch_ndx, 'val', val_metrics_t)
+            val_loss = val_metrics_t.numpy().mean()
+            # If the validation loss is at a minimum
+            if val_loss < min_val_loss:
+                epochs_no_improve = 0
+                min_val_loss = val_loss
+            else:
+                epochs_no_improve += 1
+            if epoch_ndx > 5 and epochs_no_improve == n_epochs_stop:
+                log.info('Early stopping!')
+                early_stop = True
+            # Check early stopping condition
+            if early_stop:
+                log.info("Stopped")
+                break
 
         if hasattr(self, 'trn_writer'):
             self.trn_writer.close()
@@ -205,6 +225,7 @@ class LoesScoringTrainingApp(TrainingApp):
 
         try:
             standardized_rmse = self.get_standardized_rmse()
+
             log.info(f'standardized_rmse: {standardized_rmse}')
         except ZeroDivisionError as err:
             log.error(f'Could not compute stanardized RMSE because sigma is 0: {err}')

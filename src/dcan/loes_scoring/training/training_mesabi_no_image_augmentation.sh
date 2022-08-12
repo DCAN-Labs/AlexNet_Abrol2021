@@ -20,4 +20,4 @@ cd /home/miran045/reine097/projects/AlexNet_Abrol2021 || exit
 export PYTHONPATH=PYTHONPATH:"/home/miran045/reine097/projects/AlexNet_Abrol2021/src"
 /home/miran045/reine097/projects/AlexNet_Abrol2021/venv/bin/python \
   /home/miran045/reine097/projects/AlexNet_Abrol2021/src/dcan/loes_scoring/training/training.py --batch-size=1 --epochs=1024 \
-  --num-workers=6  --image-augmentation
+  --num-workers=6
