@@ -14,7 +14,6 @@ from torch.utils.tensorboard import SummaryWriter
 from TrainingApp import TrainingApp
 from dcan.loes_scoring.data_sets.dsets import LoesScoreDataset
 
-from dcan.loes_scoring.data_sets.dsets_with_image_augmentation import LoesScoreDatasetWithImageAugmentation
 from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
 from util.logconf import logging
 from util.util import enumerateWithEstimate
@@ -38,7 +37,6 @@ class LoesScoringTrainingApp(TrainingApp):
                                  default='loes_scoring',
                                  help="Data prefix to use for Tensorboard run. Defaults to loes_scoring.",
                                  )
-        self.parser.add_argument('--image-augmentation', action=argparse.BooleanOptionalAction)
         self.parser.add_argument('comment',
                                  help="Comment suffix for Tensorboard run.",
                                  nargs='?',
@@ -70,17 +68,11 @@ class LoesScoringTrainingApp(TrainingApp):
         # return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
         return Adam(self.model.parameters())
 
-    def init_train_dl(self, use_image_augmentation=False):
-        if use_image_augmentation:
-            train_ds = LoesScoreDatasetWithImageAugmentation(
-                val_stride=10,
-                is_val_set_bool=False,
-            )
-        else:
-            train_ds = LoesScoreDataset(
-                val_stride=10,
-                is_val_set_bool=False,
-            )
+    def init_train_dl(self):
+        train_ds = LoesScoreDataset(
+            val_stride=10,
+            is_val_set_bool=False,
+        )
 
         batch_size = self.cli_args.batch_size
         if self.use_cuda:
@@ -179,8 +171,7 @@ class LoesScoringTrainingApp(TrainingApp):
     def main(self):
         log.info("Starting {}, {}".format(type(self).__name__, self.cli_args))
 
-        use_image_augmentation = self.cli_args.image_augmentation
-        train_dl = self.init_train_dl(use_image_augmentation)
+        train_dl = self.init_train_dl()
         val_dl = self.init_val_dl()
 
         for epoch_ndx in range(1, self.cli_args.epochs + 1):

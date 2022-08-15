@@ -27,14 +27,39 @@ class TestDSets(unittest.TestCase):
                 session_date,
                 is_validated
             )
-        loes_score_mris = LoesScoreMRIs(candidate_info)
+        loes_score_mris = LoesScoreMRIs(candidate_info, True)
+        self.assertIsNotNone(loes_score_mris)
+        raw_candidate = loes_score_mris.get_raw_candidate()
+        self.assertIsNotNone(raw_candidate)
+
+    def test_LoesScoreMRIs_init_training(self):
+        loes_score_float = 10.0
+        subject_session_uid = '7295TASU_20190220'
+        subject_str = '7295TASU'
+        session_str = '20190220'
+        session_date = datetime.strptime(session_str, '%Y%m%d')
+        is_validated = False
+        candidate_info = CandidateInfoTuple(
+                loes_score_float,
+                subject_session_uid,
+                subject_str,
+                session_str,
+                session_date,
+                is_validated
+            )
+        loes_score_mris = LoesScoreMRIs(candidate_info, False)
         self.assertIsNotNone(loes_score_mris)
         raw_candidate = loes_score_mris.get_raw_candidate()
         self.assertIsNotNone(raw_candidate)
 
     def test_get_loes_score_mris(self):
         candidate_info = self.get_test_candidate_info()
-        loes_score_mris = get_loes_score_mris(candidate_info)
+        loes_score_mris = get_loes_score_mris(candidate_info, True)
+        self.assertIsNotNone(loes_score_mris)
+
+    def test_get_loes_score_mris_training(self):
+        candidate_info = self.get_test_candidate_info()
+        loes_score_mris = get_loes_score_mris(candidate_info, False)
         self.assertIsNotNone(loes_score_mris)
 
     def get_test_candidate_info(self):
@@ -56,17 +81,24 @@ class TestDSets(unittest.TestCase):
 
     def test_get_mri_raw_candidate(self):
         candidate_info = self.get_test_candidate_info()
-        mri_raw_candidate = get_mri_raw_candidate(candidate_info)
+        mri_raw_candidate = get_mri_raw_candidate(candidate_info, True)
+        self.assertIsNotNone(mri_raw_candidate)
+
+    def test_get_mri_raw_candidate_training(self):
+        candidate_info = self.get_test_candidate_info()
+        mri_raw_candidate = get_mri_raw_candidate(candidate_info, False)
         self.assertIsNotNone(mri_raw_candidate)
 
     def test_loes_score_dataset_init(self):
-        loes_score_dataset = LoesScoreDataset(val_stride=10)
+        loes_score_dataset = LoesScoreDataset(val_stride=10, is_val_set_bool=False)
         self.assertIsNotNone(loes_score_dataset)
         length = loes_score_dataset.__len__()
         self.assertEqual(133, length)
-        for i in range(length):
+        for i in range(3):
             item = loes_score_dataset.__getitem__(i)
             self.assertIsNotNone(item)
+        item = loes_score_dataset.__getitem__(132)
+        self.assertIsNotNone(item)
 
 
 if __name__ == '__main__':

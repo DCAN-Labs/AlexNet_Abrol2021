@@ -116,12 +116,29 @@ def get_subject_session_info(row):
 
 
 class LoesScoreMRIs:
-    def __init__(self, candidate_info):
+    def __init__(self, candidate_info, is_val_set_bool):
         mprage_path = candidate_info.path_to_file()
         mprage_image = tio.ScalarImage(mprage_path)
-        transform = tio.CropOrPad(
-            (256, 256, 256),
+        crop_or_pad = tio.CropOrPad(
+            (512, 512, 512),
         )
+        if is_val_set_bool:
+            transform = tio.Compose([
+                crop_or_pad,
+                tio.ToCanonical(),
+                tio.ZNormalization(masking_method=tio.ZNormalization.mean),
+            ])
+        else:
+            transform = tio.Compose([
+                crop_or_pad,
+                tio.ToCanonical(),
+                tio.ZNormalization(masking_method=tio.ZNormalization.mean),
+                tio.RandomFlip(axes='LR'),
+                tio.OneOf({
+                    tio.RandomAffine(): 0.8,
+                    tio.RandomElasticDeformation(): 0.2,
+                })
+            ])
         transformed_mprage_image = transform(mprage_image)
         self.mprage_image_tensor = transformed_mprage_image.data
 
@@ -132,13 +149,13 @@ class LoesScoreMRIs:
 
 
 @functools.lru_cache(1, typed=True)
-def get_loes_score_mris(candidate_info):
-    return LoesScoreMRIs(candidate_info)
+def get_loes_score_mris(candidate_info, is_val_set_bool):
+    return LoesScoreMRIs(candidate_info, is_val_set_bool)
 
 
 @raw_cache.memoize(typed=True)
-def get_mri_raw_candidate(subject_session_uid):
-    loes_score_mris = get_loes_score_mris(subject_session_uid)
+def get_mri_raw_candidate(subject_session_uid, is_val_set_bool):
+    loes_score_mris = get_loes_score_mris(subject_session_uid, is_val_set_bool)
     mprage_image_tensor = loes_score_mris.get_raw_candidate()
 
     return mprage_image_tensor
@@ -151,6 +168,7 @@ class LoesScoreDataset(Dataset):
                  subject=None,
                  sortby_str='random',
                  ):
+        self.is_val_set_bool = is_val_set_bool
         self.candidateInfo_list = copy.copy(get_candidate_info_list())
 
         if subject:
@@ -185,7 +203,7 @@ class LoesScoreDataset(Dataset):
     def __getitem__(self, ndx):
         candidate_info = self.candidateInfo_list[ndx]
         # TODO Possibly handle other file types such as diffusion-weighted sequences
-        candidate_a = get_mri_raw_candidate(candidate_info)
+        candidate_a = get_mri_raw_candidate(candidate_info, self.is_val_set_bool)
         candidate_t = candidate_a.to(torch.float32)
 
         loes_score = candidate_info.loes_score_float
