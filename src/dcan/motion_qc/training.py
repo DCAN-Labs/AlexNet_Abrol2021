@@ -10,8 +10,8 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from TrainingApp import TrainingApp
-from dcan.dsets.motion_qc.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
 from dcan.loes_scoring.model.luna_model import LunaModel
+from dcan.motion_qc.data_sets.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
 from reprex.models import AlexNet3D_Dropout_Regression
 from util.logconf import logging
 from util.util import enumerateWithEstimate
@@ -42,6 +42,11 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
                                  default='MRIMotionQcScoreDataset',
                                  )
 
+        self.parser.add_argument('--qc_with_paths_csv',
+                                 help="Location of data CSV file",
+                                 default='data/eLabe/qc_img_paths.csv',
+                                 )
+
         self.parser.add_argument('comment',
                                  help="Comment suffix for Tensorboard run.",
                                  nargs='?',
@@ -62,7 +67,7 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
         # See https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference
         self.parser.add_argument('--model-save-location',
                                  help="Where to save the trained model.",
-                                 default=f'./model-{self.time_str}.pt',
+                                 default=f'./elabe-model-{self.time_str}.pt',
                                  )
 
         self.cli_args = self.parser.parse_args(sys_argv)
@@ -100,7 +105,9 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
         assert False
 
     def init_train_dl(self):
-        train_ds = MRIMotionQcScoreDataset()
+        train_ds = MRIMotionQcScoreDataset(
+            val_stride=10,
+            is_val_set_bool=False)
 
         batch_size = self.cli_args.batch_size
         if self.use_cuda:
@@ -116,7 +123,9 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
         return train_dl
 
     def init_val_dl(self):
-        val_ds = MRIMotionQcScoreDataset()
+        val_ds = MRIMotionQcScoreDataset(
+            val_stride=10,
+            is_val_set_bool=True)
 
         batch_size = self.cli_args.batch_size
         if self.use_cuda:
@@ -149,9 +158,9 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
                 "get_output_distributions",
                 start_ndx=val_dl.num_workers,
             )
-            distributions = {1: [], 2: [], 3: [], 4: []}
+            distributions = {1: [], 2: [], 3: [], 4: [], 5: []}
             for batch_ndx, batch_tup in batch_iter:
-                input_t, label_t, _ = batch_tup
+                input_t, label_t = batch_tup
                 x = input_t.to(self.device, non_blocking=True)
                 labels = label_t.to(self.device, non_blocking=True)
                 outputs = self.model(x)
@@ -175,7 +184,7 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
             squares_list = []
             prediction_list = []
             for batch_ndx, batch_tup in batch_iter:
-                input_t, label_t, _ = batch_tup
+                input_t, label_t = batch_tup
                 x = input_t.to(self.device, non_blocking=True)
                 labels = label_t.to(self.device, non_blocking=True)
                 outputs = self.model(x)
@@ -285,7 +294,7 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
         return val_metrics_g.to('cpu')
 
     def compute_batch_loss(self, batch_ndx, batch_tup, batch_size, metrics_g, is_training):
-        input_t, label_t, _series_list = batch_tup
+        input_t, label_t = batch_tup
 
         x = input_t.to(self.device, non_blocking=True)
         labels = label_t.to(self.device, non_blocking=True)

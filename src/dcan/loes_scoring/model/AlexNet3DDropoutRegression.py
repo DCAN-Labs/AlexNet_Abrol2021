@@ -33,7 +33,7 @@ class AlexNet3DDropoutRegression(nn.Module):
         )
 
         self.classifier = nn.Sequential(nn.Dropout(),
-                                        nn.Linear(8192, 64),
+                                        nn.Linear(93312, 64),
                                         nn.ReLU(inplace=True),
                                         nn.Dropout(),
                                         nn.Linear(64, 1),

@@ -5,7 +5,7 @@ import torch
 import torch.cuda
 from torch.utils.data import Dataset
 
-from dcan.dsets.motion_qc.dsets import getCandidateInfoList, getMriRawCandidate
+from dcan.motion_qc.data_sets.dsets import get_candidate_info_list, get_mri_raw_candidate
 from util.logconf import logging
 
 log = logging.getLogger(__name__)
@@ -16,12 +16,12 @@ log.setLevel(logging.DEBUG)
 
 class MRIMotionQcScoreDataset(Dataset):
     def __init__(self,
-                 val_stride=0,
+                 val_stride=10,
                  is_val_set_bool=None,
                  series_uid=None,
                  sortby_str='random',
                  ):
-        self.candidateInfo_list = copy.copy(getCandidateInfoList())
+        self.candidateInfo_list = copy.copy(get_candidate_info_list())
 
         if series_uid:
             self.candidateInfo_list = [
@@ -38,8 +38,6 @@ class MRIMotionQcScoreDataset(Dataset):
 
         if sortby_str == 'random':
             random.shuffle(self.candidateInfo_list)
-        elif sortby_str == 'series_uid':
-            self.candidateInfo_list.sort(key=lambda x: (x.series_uid, x.center_xyz))
         elif sortby_str == 'label_and_size':
             pass
         else:
@@ -57,12 +55,14 @@ class MRIMotionQcScoreDataset(Dataset):
     def __getitem__(self, ndx):
         candidate_info_tup = self.candidateInfo_list[ndx]
 
-        candidate_a = getMriRawCandidate(
-            candidate_info_tup.series_uid,
+        candidate_a = get_mri_raw_candidate(
+            candidate_info_tup.smriPath_str,
         )
         candidate_t = torch.from_numpy(candidate_a).to(torch.float32)
+        if len(candidate_t.size()) != 3:
+            candidate_t.squeeze()
         candidate_t = candidate_t.unsqueeze(0)
 
-        motion_qc_score_t = torch.tensor(candidate_info_tup.motionQCscore_int, dtype=torch.double)
+        motion_qc_score_t = torch.tensor(candidate_info_tup.rating_int, dtype=torch.double)
 
-        return candidate_t, motion_qc_score_t.float(), candidate_info_tup.series_uid
+        return candidate_t, motion_qc_score_t.float()

@@ -3,7 +3,7 @@
 #SBATCH --job-name=loes-scoring-alex-net # job name
 
 #SBATCH --mem=90g        # memory per cpu-core (what is the default?)
-#SBATCH --time=16:00:00          # total run time limit (HH:MM:SS)
+#SBATCH --time=24:00:00          # total run time limit (HH:MM:SS)
 #SBATCH -p v100
 #SBATCH --gres=gpu:v100:1
 #SBATCH --ntasks=6               # total number of tasks across all nodes
@@ -19,5 +19,5 @@
 cd /home/miran045/reine097/projects/AlexNet_Abrol2021 || exit
 export PYTHONPATH=PYTHONPATH:"/home/miran045/reine097/projects/AlexNet_Abrol2021/src"
 /home/miran045/reine097/projects/AlexNet_Abrol2021/venv/bin/python \
-  /home/miran045/reine097/projects/AlexNet_Abrol2021/src/dcan/loes_scoring/training/training.py --batch-size=1 --epochs=1024 \
+  /home/miran045/reine097/projects/AlexNet_Abrol2021/src/dcan/loes_scoring/training/training.py --batch-size=1 --epochs=512 \
   --num-workers=6

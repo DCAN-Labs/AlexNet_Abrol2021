@@ -28,3 +28,17 @@ All scores are for the validation set.
 * Image augmentation: 
     * [`tio.RandomElasticDeformation(num_control_points=7, locked_borders=2)`](https://torchio.readthedocs.io/transforms/augmentation.html#randomelasticdeformation)
 ![Loes score predictions](./loes_score_prediction_run03.png "Loes score predictions")
+
+## Run 4
+
+* standardized_rmse: 28.959144972854443
+* Mean square error: 39.9433
+* Epochs: 512
+* Image augmentation: 
+    *     tio.RandomFlip(axes='LR'),
+                tio.OneOf({
+                    tio.RandomAffine(): 0.8,
+                    tio.RandomElasticDeformation(): 0.2,
+                })
+
+![Loes score predictions](./loes_score_prediction_run03.png "Loes score predictions")
