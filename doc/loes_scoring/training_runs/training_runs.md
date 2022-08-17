@@ -41,4 +41,4 @@ All scores are for the validation set.
                     tio.RandomElasticDeformation(): 0.2,
                 })
 
-![Loes score predictions](./loes_score_prediction_run03.png "Loes score predictions")
+![Loes score predictions](./loes_score_prediction_run04.png "Loes score predictions")
