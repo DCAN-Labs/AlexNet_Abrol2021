@@ -36,3 +36,7 @@
 /src/dcan/loes_scoring/data_sets/data-unversioned/
 /data/eLabe/qc_img_paths.csv
 /data/BCP/qc_with_paths.csv
+/data/BCP_and_eLabe/bcp_and_elabe_qc.csv
+/data/BCP_and_eLabe/bcp_and_elabe_qc_cv.csv
+/data/BCP_and_eLabe/bcp_and_elabe_qc_test.csv
+/data/BCP_and_eLabe/bcp_and_elabe_qc_train.csv
