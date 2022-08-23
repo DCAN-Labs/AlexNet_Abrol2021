@@ -169,6 +169,8 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
                 for i in range(n):
                     label_int = int(labels[i].item())
                     distributions[label_int].append(actual[i])
+            for distribution in distributions:
+                distributions[distribution] = sorted(distributions[distribution])
 
         return distributions
 
@@ -214,11 +216,11 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
                 (torch.cuda.device_count() if self.use_cuda else 1),
             ))
 
-            self.do_training(epoch_ndx, train_dl)
-            self.log_metrics(epoch_ndx)
+            trn_metrics_t = self.do_training(epoch_ndx, train_dl)
+            self.log_metrics(epoch_ndx, 'trn', trn_metrics_t)
 
-            self.do_validation(epoch_ndx, val_dl)
-            self.log_metrics(epoch_ndx)
+            val_metrics_t = self.do_validation(epoch_ndx, val_dl)
+            self.log_metrics(epoch_ndx, 'val', val_metrics_t)
 
         if hasattr(self, 'trn_writer'):
             self.trn_writer.close()
@@ -328,11 +330,29 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
     def log_metrics(
             self,
             epoch_ndx,
+            mode_str,
+            metrics_t,
     ):
         log.info("E{} {}".format(
             epoch_ndx,
             type(self).__name__,
         ))
+
+        metrics_dict = {'loss/all': metrics_t[METRICS_LOSS_NDX].mean()}
+
+        log.info(
+            ("E{} {:8} {loss/all:.4f} loss, "
+             ).format(
+                epoch_ndx,
+                mode_str,
+                **metrics_dict,
+            )
+        )
+
+        writer = getattr(self, mode_str + '_writer')
+
+        for key, value in metrics_dict.items():
+            writer.add_scalar(key, value, self.totalTrainingSamples_count)
 
         # score = 1 \
         #     + metrics_dict['pr/f1_score'] \

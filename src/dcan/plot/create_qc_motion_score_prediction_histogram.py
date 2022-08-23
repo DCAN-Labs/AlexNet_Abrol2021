@@ -1,7 +1,7 @@
 import ast
 import matplotlib.pyplot as plt
 
-with open('/home/miran045/reine097/projects/AlexNet_Abrol2021/results/model03/distributions.txt') as f:
+with open('/home/miran045/reine097/projects/AlexNet_Abrol2021/results/motion-qc/BCP/model03/distributions.txt') as f:
     data = f.read()
 
 d = ast.literal_eval(data)

@@ -48,22 +48,11 @@ def get_candidate_info_list():
 
 
 class Mri:
-    def __init__(self, smri_path):
-        mri_path = smri_path
-
-        mprage_image = tio.ScalarImage(mri_path)
-        crop_or_pad = tio.CropOrPad(
-            (208, 300, 320),
-        )
-        transform = tio.Compose([
-            crop_or_pad,
-            tio.ToCanonical(),
-            tio.ZNormalization(masking_method=tio.ZNormalization.mean),
-        ])
-        transformed_mprage_image = transform(mprage_image)
-        mprage_image_tensor = transformed_mprage_image.data
-        mprage_image_tensor = mprage_image_tensor.squeeze()
-        mri_a = np.array(mprage_image_tensor, dtype=np.float32)
+    def __init__(self, mri_path):
+        image = tio.ScalarImage(mri_path)
+        image_tensor = image.data
+        image_tensor = image_tensor.squeeze()
+        mri_a = np.array(image_tensor, dtype=np.float32)
 
         self.hu_a = mri_a
 
