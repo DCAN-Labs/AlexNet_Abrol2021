@@ -11,7 +11,7 @@ Model 3
 * Model architecture: AlexNet3D_Dropout_Regression
 * Optimizer: Adam
 * Epochs: 1000
-* Location: */home/feczk001/shared/data/AlexNet/model03.pt*
+* Location: */home/feczk001/shared/data/AlexNet/MotionQC/model03.pt*
 
 Model 4
 -------
@@ -21,7 +21,7 @@ Model 4
 * Model architecture: Luna
 * Optimizer: Adam
 * Epochs: 1000
-* Location: */home/feczk001/shared/data/AlexNet/model04.pt*
+* Location: */home/feczk001/shared/data/AlexNet/MotionQC/model04.pt*
 
 Model 2
 -------
@@ -50,6 +50,7 @@ Model 6
 * Optimizer: Adam
 * Epochs: 64
 * Dataset(s): BCP and eLabe
+* Location: */home/feczk001/shared/data/AlexNet/MotionQC/model06.pt*
 
 Model 5
 -------
