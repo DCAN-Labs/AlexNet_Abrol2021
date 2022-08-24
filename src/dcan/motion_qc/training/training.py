@@ -44,7 +44,7 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
 
         self.parser.add_argument('--qc_with_paths_csv',
                                  help="Location of data CSV file",
-                                 default='data/eLabe/qc_img_paths.csv',
+                                 default='data/qc_img_paths.csv',
                                  )
 
         self.parser.add_argument('comment',
@@ -67,7 +67,7 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
         # See https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference
         self.parser.add_argument('--model-save-location',
                                  help="Where to save the trained model.",
-                                 default=f'./elabe-model-{self.time_str}.pt',
+                                 default=f'./model-{self.time_str}.pt',
                                  )
 
         self.cli_args = self.parser.parse_args(sys_argv)
