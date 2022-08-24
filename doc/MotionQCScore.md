@@ -1,10 +1,22 @@
-BCP Motion QC Score
+Motion QC Score
 ===================
+
+Model 6
+-------
+
+![Actual QC motion score vs. frequency of prediction](./qc_motion_score_prediction_model_06.png)
+
+* Standardized RMSE (on validation set): **1.3027799144029593**
+* Mean squared error (on validation set): 0.4758
+* Model architecture: AlexNet3D_Dropout_Regression
+* Optimizer: Adam
+* Epochs: 64
+* Dataset(s): BCP and eLabe
 
 Model 3
 -------
 
-![Actual QC motion score vs. frequency of prediction](./qc_motion_score_prediction.png)
+![Actual QC motion score vs. frequency of prediction](./qc_motion_score_prediction_model_03.png)
 
 * Standardized RMSE (on validation set): **0.3486471956656407**
 * Mean squared error (on validation set): 0.1235
@@ -38,6 +50,18 @@ Model 1
 * Model architecture: AlexNet3D_Dropout_Regression
 * Optimizer: Adam
 * Epochs: 55
+
+Model 6
+-------
+
+![Actual QC motion score vs. frequency of prediction](./qc_motion_score_prediction_model_06.png)
+
+* Standardized RMSE (on validation set): **1.3027799144029593**
+* Mean squared error (on validation set): 0.4758
+* Model architecture: AlexNet3D_Dropout_Regression
+* Optimizer: Adam
+* Epochs: 64
+* Dataset(s): BCP and eLabe
 
 Model 5
 -------
