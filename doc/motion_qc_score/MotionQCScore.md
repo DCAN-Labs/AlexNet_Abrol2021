@@ -4,7 +4,7 @@ Motion QC Score
 Model 3
 -------
 
-![Actual QC motion score vs. frequency of prediction](./qc_motion_score_prediction_model_03.png)
+![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_03.png)
 
 * Standardized RMSE (on validation set): **0.3486471956656407**
 * Mean squared error (on validation set): 0.1235
@@ -56,7 +56,7 @@ Model 7
 Model 6
 -------
 
-![Actual QC motion score vs. frequency of prediction](./qc_motion_score_prediction_model_06.png)
+![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_06.png)
 
 * Standardized RMSE (on validation set): **1.3027799144029593**
 * Mean squared error (on validation set): 0.4758
