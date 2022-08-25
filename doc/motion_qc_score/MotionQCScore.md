@@ -39,6 +39,20 @@ Model 1
 * Optimizer: Adam
 * Epochs: 55
 
+Model 7
+-------
+
+![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_07.png)
+
+* Standardized RMSE (on validation set): **1.08185627460534**
+* Mean squared error (on validation set): 0.4542
+* Mean squared error (on training set):   0.4139
+* Model architecture: AlexNet3D_Dropout_Regression
+* Optimizer: Adam
+* Epochs: 128
+* Dataset(s): BCP and eLabe
+* Location: */home/feczk001/shared/data/AlexNet/MotionQC/model07.pt*
+
 Model 6
 -------
 
