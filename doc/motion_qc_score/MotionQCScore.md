@@ -21,7 +21,7 @@ Model 8
 * Mean squared error (on eLabe): 0.2150
 * Model architecture: AdamNet
 * Optimizer: Adam
-* Epochs: 1000
+* Epochs: 128
 * Location: */home/feczk001/shared/data/AlexNet/MotionQC/model08.pt*
 
 Model 2
