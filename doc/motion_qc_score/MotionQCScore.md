@@ -23,6 +23,8 @@ Model 8
 * Optimizer: Adam
 * Epochs: 128
 * Location: */home/feczk001/shared/data/AlexNet/MotionQC/model08.pt*
+* Training data: BCP
+* Test data: eLabe
 
 Model 2
 -------
