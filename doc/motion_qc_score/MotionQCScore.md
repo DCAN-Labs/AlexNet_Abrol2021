@@ -18,7 +18,7 @@ Model 8
 
 ![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_08.png)
 
-* Mean squared error (on eLabe): 0.2150
+* Mean squared error (on eLabe): **0.2150**
 * Model architecture: AdamNet
 * Optimizer: Adam
 * Epochs: 128
