@@ -20,6 +20,7 @@ cd /home/miran045/reine097/projects/AlexNet_Abrol2021 || exit
 export PYTHONPATH=PYTHONPATH:"/home/miran045/reine097/projects/AlexNet_Abrol2021/src"
 /home/miran045/reine097/projects/AlexNet_Abrol2021/venv/bin/python \
   /home/miran045/reine097/projects/AlexNet_Abrol2021/src/dcan/motion_qc/training/training.py --num-workers=4 --batch-size=8 \
-  --tb-prefix="MRIMotionQcScore_BCP_and_eLabe" --epochs=128 --model="AlexNet" --dset="MRIMotionQcScoreDataset" \
-  --qc_with_paths_csv='/home/miran045/reine097/projects/AlexNet_Abrol2021/data/BCP_and_eLabe/bcp_and_elabe_qc_test.csv' \
-  "MRIMotionQcScore_eLabe_and_BCP"
+  --tb-prefix="MRIMotionQcScore_BCP" --epochs=128 --model="AlexNet3D_Dropout_Regression" \
+  --dset="MRIMotionQcScoreDataset" \
+  --qc_with_paths_csv='/home/miran045/reine097/projects/AlexNet_Abrol2021/data/BCP/qc_with_paths_standardized.csv' \
+  "MRIMotionQcScore_BCP"

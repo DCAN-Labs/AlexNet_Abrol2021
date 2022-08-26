@@ -17,14 +17,19 @@ def infer_bcp_motion_qc_score(model_weights_file, mri_path):
                                      map_location='cpu'))
     model.eval()
     with torch.no_grad():
-        mri_nii_gz = nib.load(mri_path)
-        mri_a = np.array(mri_nii_gz.get_fdata().copy(), dtype=np.float32)
-        candidate_t = torch.from_numpy(mri_a).to(torch.float32)
-        candidate_t = torch.unsqueeze(candidate_t.unsqueeze(0), dim=0)
-        prediction_t_a = model(candidate_t)
-        prediction = prediction_t_a[0].item()
+        prediction = get_prediction(model, mri_path)
 
         return prediction
+
+
+def get_prediction(model, mri_path):
+    mri_nii_gz = nib.load(mri_path)
+    mri_a = np.array(mri_nii_gz.get_fdata().copy(), dtype=np.float32)
+    candidate_t = torch.from_numpy(mri_a).to(torch.float32)
+    candidate_t = torch.unsqueeze(candidate_t.unsqueeze(0), dim=0)
+    prediction_t_a = model(candidate_t)
+    prediction = prediction_t_a[0].item()
+    return prediction
 
 
 if __name__ == "__main__":

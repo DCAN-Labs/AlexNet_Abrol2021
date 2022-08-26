@@ -11,6 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from TrainingApp import TrainingApp
 from dcan.loes_scoring.model.luna_model import LunaModel
+from dcan.models.AlexNet3D_Dropout_Regression_deeper import AlexNet3D_Dropout_Regression_deeper
 from dcan.motion_qc.data_sets.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
 from reprex.models import AlexNet3D_Dropout_Regression
 from util.logconf import logging
@@ -87,6 +88,8 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
     def init_model(self, model_name):
         if model_name.lower() == 'luna':
             model = LunaModel()
+        elif model_name.lower() == 'AlexNet3D_Dropout_Regression_deeper'.lower():
+            model = AlexNet3D_Dropout_Regression_deeper()
         else:
             model = AlexNet3D_Dropout_Regression()
         if self.use_cuda:
@@ -164,11 +167,11 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
                 x = input_t.to(self.device, non_blocking=True)
                 labels = label_t.to(self.device, non_blocking=True)
                 outputs = self.model(x)
-                actual = self.get_actual(outputs).tolist()
+                predictions = self.get_actual(outputs).tolist()
                 n = len(labels)
                 for i in range(n):
                     label_int = int(labels[i].item())
-                    distributions[label_int].append(actual[i])
+                    distributions[label_int].append(predictions[i])
             for distribution in distributions:
                 distributions[distribution] = sorted(distributions[distribution])
 

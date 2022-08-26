@@ -13,15 +13,16 @@ Model 3
 * Epochs: 1000
 * Location: */home/feczk001/shared/data/AlexNet/MotionQC/model03.pt*
 
-Model 4
+Model 8
 -------
 
-* Standardized RMSE (on validation set): **0.5025856541174554**
-* Mean squared error (on validation set): 0.1426
-* Model architecture: Luna
+![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_08.png)
+
+* Mean squared error (on eLabe): 0.2150
+* Model architecture: AdamNet
 * Optimizer: Adam
 * Epochs: 1000
-* Location: */home/feczk001/shared/data/AlexNet/MotionQC/model04.pt*
+* Location: */home/feczk001/shared/data/AlexNet/MotionQC/model08.pt*
 
 Model 2
 -------
