@@ -26,6 +26,19 @@ Model 8
 * Training data: BCP
 * Test data: eLabe
 
+Model 9
+-------
+
+![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_09.png)
+
+* Mean squared error (on BCP): **0.4636**
+* Model architecture: AdamNet
+* Optimizer: Adam
+* Epochs: 128
+* Location: */home/feczk001/shared/data/AlexNet/MotionQC/model09.pt*
+* Training data: eLabe
+* Test data: BCP
+
 Model 2
 -------
 

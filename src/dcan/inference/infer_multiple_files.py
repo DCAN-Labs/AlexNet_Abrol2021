@@ -26,8 +26,15 @@ def infer_multiple_files(model_weights_fl, csv_file):
             distributions = {0: [], 1: [], 2: [], 3: [], 4: [], 5: []}
             for row in csv_reader:
                 image_path = row[0]
-                rating = int(round(float(row[1])))
-                prediction = get_prediction(model, image_path)
+                rating_str = row[1]
+                if rating_str == 'NA':
+                    continue
+                rating = int(round(float(rating_str)))
+                try:
+                    prediction = get_prediction(model, image_path)
+                except FileNotFoundError:
+                    print("File not found.")
+                    continue
                 se = (rating - prediction) ** 2
                 total += se
                 count += 1
