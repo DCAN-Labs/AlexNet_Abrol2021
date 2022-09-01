@@ -1,6 +1,22 @@
 Motion QC Score
 ===================
 
+BCP distribution
+----------------
+
+The values range from 0.0 to 4.0.
+
+![BCP distribution](./img/bcp_hist.png)
+
+eLabe distribution
+----------------
+
+The values range from 1.0 to 5.0.
+
+![eLabe distribution](./img/elabe_hist.png)
+
+---
+
 Model 3
 -------
 
