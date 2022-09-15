@@ -1,16 +1,13 @@
 import csv
 import functools
-import glob
 import logging
-import os
 from collections import namedtuple
 from operator import attrgetter
 
-from util.disk import getCache
-
-import nibabel as nib
 import numpy as np
 import torchio as tio
+
+from util.disk import getCache
 
 log = logging.getLogger(__name__)
 # log.setLevel(logging.WARN)
