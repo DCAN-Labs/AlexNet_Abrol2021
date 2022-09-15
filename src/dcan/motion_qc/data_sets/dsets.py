@@ -27,6 +27,7 @@ def get_candidate_info_list():
     # We construct a set with all series_uids that are present on disk.
     # This will let us use the data, even if we haven't downloaded all of
     # the subsets yet.
+    # TODO Why is the path below hard-coded? That's not the only such CSV file.
     qc_with_paths_csv = 'data/eLabe/qc_img_paths.csv'
     with open(qc_with_paths_csv, "r") as f:
         candidate_info_list = []
