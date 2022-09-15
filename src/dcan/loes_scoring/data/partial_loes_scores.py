@@ -25,13 +25,13 @@ with open(file_path) as csvfile:
         date_of_mri = datetime.strptime(date_time_str, '%m/%d/%Y')
         parieto_occipital_white_matter = \
             ParietoOccipitalWhiteMatter(
-                periventricular=int(row[3]), central=int(row[4]), subcortical=int(row[5]), atrophy=int(row[6]))
+                periventricular=float(row[3]), central=int(row[4]), subcortical=int(row[5]), atrophy=int(row[6]))
         anterior_temporal_white_matter = \
             AnteriorTemporalWhiteMatter(
-                periventricular=int(row[7]), central=int(row[8]), subcortical=int(row[9]), atrophy=int(row[10]))
+                periventricular=int(row[7]), central=int(row[8]), subcortical=float(row[9]), atrophy=int(row[10]))
         frontal_white_matter = \
             FrontalWhiteMatter(
-                periventricular=int(row[11]), central=int(row[12]), subcortical=int(row[13]), atrophy=int(row[13]))
+                periventricular=float(row[11]), central=int(row[12]), subcortical=int(row[13]), atrophy=int(row[13]))
         corpus_callosum = \
             CorpusCallosum(splenium=int(row[14]), body=int(row[15]), genu=int(row[16]), atrophy=int(row[17]))
         visual_pathways = \
@@ -40,8 +40,8 @@ with open(file_path) as csvfile:
                 optic_tract=int(row[21]))
         auditory_pathway = \
             AuditoryPathway(
-                medial_geniculate=int(row[22]), brachium_to_inferior_colliculus=int(row[23]),
-                lateral_leminiscus=int(row[24]), trapezoid_body_pons=int(row[25]))
+                medial_geniculate=int(row[22]), brachium_to_inferior_colliculus=float(row[23]),
+                lateral_leminiscus=float(row[24]), trapezoid_body_pons=float(row[25]))
         frontopontine_and_corticopsinal_fibers = \
             Frontopontine_And_Corticopsinal_Fibers(internal_capsule=int(row[26]), brain_stem=int(row[27]))
         cerebellum = int(row[28])
@@ -52,7 +52,7 @@ with open(file_path) as csvfile:
         brainstem_atrophy = int(row[33])
         loes_score = int(row[34])
         retricted_diffusion_present_on_mri = True if row[35] == 'Yes' else False
-        gad = int(row[35])
+        gad = float(row[35])
         loes_score_obj = \
             LoesScore(sub_id, sub_session, date_of_mri, parieto_occipital_white_matter, anterior_temporal_white_matter,
                frontal_white_matter, corpus_callosum, visual_pathways, auditory_pathway,
