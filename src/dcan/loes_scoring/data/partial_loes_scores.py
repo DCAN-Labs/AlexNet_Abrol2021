@@ -32,28 +32,29 @@ def get_partial_loes_scores(file_path):
             frontal_white_matter = \
                 FrontalWhiteMatter(
                     periventricular=float(row[11]), central=int(row[12]), subcortical=float(row[13]),
-                    atrophy=float(row[13]))
+                    atrophy=float(row[14]))
             corpus_callosum = \
-                CorpusCallosum(splenium=int(row[14]), body=int(row[15]), genu=int(row[16]), atrophy=int(row[17]))
+                CorpusCallosum(splenium=int(row[15]), body=int(row[16]), genu=int(row[17]), atrophy=int(row[18]))
             visual_pathways = \
                 VisualPathways(
-                    optic_radiation=int(row[18]), meyers_loop=int(row[19]), lateral_geniculate_body=int(row[20]),
-                    optic_tract=int(row[21]))
+                    optic_radiation=int(row[19]), meyers_loop=int(row[20]), lateral_geniculate_body=int(row[21]),
+                    optic_tract=int(row[22]))
             auditory_pathway = \
                 AuditoryPathway(
-                    medial_geniculate=int(row[22]), brachium_to_inferior_colliculus=float(row[23]),
-                    lateral_leminiscus=float(row[24]), trapezoid_body_pons=float(row[25]))
+                    medial_geniculate=float(row[23]), brachium_to_inferior_colliculus=float(row[24]),
+                    lateral_leminiscus=float(row[25]), trapezoid_body_pons=float(row[26]))
             frontopontine_and_corticopsinal_fibers = \
-                Frontopontine_And_Corticopsinal_Fibers(internal_capsule=int(row[26]), brain_stem=float(row[27]))
-            cerebellum = int(row[28])
-            white_matter_cerebellum_atrophy = int(row[29])
-            basal_ganglia = int(row[30])
-            anterior_thalamus = int(row[31])
-            global_atrophy = int(row[32])
-            brainstem_atrophy = int(row[33])
-            loes_score = int(row[34])
-            retricted_diffusion_present_on_mri = True if row[35] == 'Yes' else False
-            gad = float(row[35])
+                Frontopontine_And_Corticopsinal_Fibers(internal_capsule=float(row[27]), brain_stem=float(row[28]))
+            cerebellum = int(row[29])
+            white_matter_cerebellum_atrophy = int(row[30])
+            basal_ganglia = int(row[31])
+            anterior_thalamus = int(row[32])
+            global_atrophy = int(row[33])
+            brainstem_atrophy = int(row[34])
+            loes_score = float(row[35])
+            retricted_diffusion_present_on_mri = True if row[36] == 'Yes' else False
+            gad_str = row[37]
+            gad = 0.0 if gad_str == '' else float(gad_str)
             loes_score_obj = \
                 LoesScore(sub_id, sub_session, date_of_mri, parieto_occipital_white_matter,
                           anterior_temporal_white_matter, frontal_white_matter, corpus_callosum, visual_pathways,
