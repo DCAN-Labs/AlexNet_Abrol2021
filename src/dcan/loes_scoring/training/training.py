@@ -1,5 +1,4 @@
 # Author: Paul Reiners
-import argparse
 import datetime
 import os
 import statistics
@@ -13,7 +12,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from TrainingApp import TrainingApp
 from dcan.loes_scoring.data_sets.dsets import LoesScoreDataset
-
 from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
 from util.logconf import logging
 from util.util import enumerateWithEstimate
@@ -36,6 +34,9 @@ class LoesScoringTrainingApp(TrainingApp):
         self.parser.add_argument('--tb-prefix',
                                  default='loes_scoring',
                                  help="Data prefix to use for Tensorboard run. Defaults to loes_scoring.",
+                                 )
+        self.parser.add_argument('--csv-data-file',
+                                 help="CSV data file.",
                                  )
         self.parser.add_argument('comment',
                                  help="Comment suffix for Tensorboard run.",
@@ -68,8 +69,9 @@ class LoesScoringTrainingApp(TrainingApp):
         # return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
         return Adam(self.model.parameters())
 
-    def init_train_dl(self):
+    def init_train_dl(self, csv_data_file):
         train_ds = LoesScoreDataset(
+            csv_data_file,
             val_stride=10,
             is_val_set_bool=False,
         )
@@ -87,8 +89,9 @@ class LoesScoringTrainingApp(TrainingApp):
 
         return train_dl
 
-    def init_val_dl(self):
+    def init_val_dl(self, csv_data_file):
         val_ds = LoesScoreDataset(
+            csv_data_file,
             val_stride=10,
             is_val_set_bool=True,
         )
@@ -117,7 +120,7 @@ class LoesScoringTrainingApp(TrainingApp):
 
     def get_standardized_rmse(self):
         with torch.no_grad():
-            val_dl = self.init_val_dl()
+            val_dl = self.init_val_dl(self.cli_args.csv_data_file)
             self.model.eval()
             batch_iter = enumerateWithEstimate(
                 val_dl,
@@ -143,7 +146,7 @@ class LoesScoringTrainingApp(TrainingApp):
 
     def get_output_distributions(self):
         with torch.no_grad():
-            val_dl = self.init_val_dl()
+            val_dl = self.init_val_dl(self.cli_args.csv_data_file)
             self.model.eval()
             batch_iter = enumerateWithEstimate(
                 val_dl,
@@ -167,12 +170,11 @@ class LoesScoringTrainingApp(TrainingApp):
 
             return sorted_distributions
 
-
     def main(self):
         log.info("Starting {}, {}".format(type(self).__name__, self.cli_args))
 
-        train_dl = self.init_train_dl()
-        val_dl = self.init_val_dl()
+        train_dl = self.init_train_dl(self.cli_args.csv_data_file)
+        val_dl = self.init_val_dl(self.cli_args.csv_data_file)
 
         for epoch_ndx in range(1, self.cli_args.epochs + 1):
             log.info("Epoch {} of {}, {}/{} batches of size {}*{}".format(

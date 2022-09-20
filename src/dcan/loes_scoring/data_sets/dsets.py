@@ -30,7 +30,6 @@ class CandidateInfoTuple:
     subject_str: str
     session_str: str
     session_date: datetime
-    is_validated: bool
     augmentation_index: int = None
     sort_index: float = field(init=False, repr=False)
 
@@ -70,7 +69,7 @@ def get_uid(p):
 
 
 @functools.lru_cache(1)
-def get_candidate_info_list(require_on_disk_bool=True):
+def get_candidate_info_list(scores_csv, require_on_disk_bool=True):
     # We construct a set with all ald_code_uids that are present on disk.
     # This will let us use the data, even if we haven't downloaded all of
     # the subsets yet.
@@ -81,7 +80,6 @@ def get_candidate_info_list(require_on_disk_bool=True):
     present_on_disk_set = mprage_present_on_disk_set
 
     candidate_info_list = []
-    scores_csv = '/home/feczk001/shared/data/loes_scoring/Loes_score/loes_scores.csv'
     with open(scores_csv, "r") as f:
         for row in list(csv.reader(f))[1:]:
             session_str, subject_session_uid, subject_str, loes_score_str = get_subject_session_info(row)
@@ -91,14 +89,12 @@ def get_candidate_info_list(require_on_disk_bool=True):
                 continue
             loes_score_float = float(loes_score_str)
             session_date = datetime.strptime(session_str, '%Y%m%d')
-            is_validated = int(row[3].strip()) == 1
             candidate_info_list.append(CandidateInfoTuple(
                 loes_score_float,
                 subject_session_uid,
                 subject_str,
                 session_str,
-                session_date,
-                is_validated
+                session_date
             ))
 
     candidate_info_list.sort(reverse=True)
@@ -163,13 +159,14 @@ def get_mri_raw_candidate(subject_session_uid, is_val_set_bool):
 
 class LoesScoreDataset(Dataset):
     def __init__(self,
+                 cvs_data_file,
                  val_stride=0,
                  is_val_set_bool=None,
                  subject=None,
                  sortby_str='random',
                  ):
         self.is_val_set_bool = is_val_set_bool
-        self.candidateInfo_list = copy.copy(get_candidate_info_list())
+        self.candidateInfo_list = copy.copy(get_candidate_info_list(cvs_data_file))
 
         if subject:
             self.candidateInfo_list = [

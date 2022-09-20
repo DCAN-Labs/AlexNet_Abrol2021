@@ -29,5 +29,5 @@ class TrainingApp:
 
         return actual
 
-    def init_val_dl(self):
+    def init_val_dl(self, csv_data_file):
         pass

@@ -6,10 +6,17 @@ from dcan.loes_scoring.data_sets.dsets import get_candidate_info_list, LoesScore
 
 from dcan.loes_scoring.data_sets.dsets import CandidateInfoTuple
 
+scores_igor_updated_csv = \
+    '/home/miran045/reine097/projects/AlexNet_Abrol2021/data/loes_scoring/' + \
+    'ALD-google_sheet-Jul272022-Loes_scores-Igor_updated.csv'
+
 
 class TestDSets(unittest.TestCase):
+
     def test_get_candidate_info_list(self):
-        candidate_info_list = get_candidate_info_list()
+        candidate_info_list = \
+            get_candidate_info_list(
+                scores_igor_updated_csv)
         self.assertIsNotNone(candidate_info_list)
 
     def test_LoesScoreMRIs_init(self):
@@ -62,7 +69,8 @@ class TestDSets(unittest.TestCase):
         loes_score_mris = get_loes_score_mris(candidate_info, False)
         self.assertIsNotNone(loes_score_mris)
 
-    def get_test_candidate_info(self):
+    @staticmethod
+    def get_test_candidate_info():
         loes_score_float = 2.0
         subject_session_uid = '5772LAVA_20180828'
         subject_str = '5772LAVA'
@@ -90,14 +98,14 @@ class TestDSets(unittest.TestCase):
         self.assertIsNotNone(mri_raw_candidate)
 
     def test_loes_score_dataset_init(self):
-        loes_score_dataset = LoesScoreDataset(val_stride=10, is_val_set_bool=False)
+        loes_score_dataset = LoesScoreDataset(scores_igor_updated_csv, val_stride=10, is_val_set_bool=False)
         self.assertIsNotNone(loes_score_dataset)
         length = loes_score_dataset.__len__()
-        self.assertEqual(133, length)
+        self.assertEqual(192, length)
         for i in range(3):
             item = loes_score_dataset.__getitem__(i)
             self.assertIsNotNone(item)
-        item = loes_score_dataset.__getitem__(132)
+        item = loes_score_dataset.__getitem__(191)
         self.assertIsNotNone(item)
 
 
