@@ -8,6 +8,17 @@ All scores are for the validation set.
 * Epochs: 1024
 ![Loes score predictions](./loes_score_prediction_run01.png "Loes score predictions")
 
+## Run 5
+* standardized_rmse: 1.4062852057098028
+* Mean square error: 21.5135
+* Epochs: 512
+* Image augmentation: 
+    *     tio.RandomFlip(axes='LR'),
+                tio.OneOf({
+                    tio.RandomAffine(): 0.8,
+                    tio.RandomElasticDeformation(): 0.2,
+                })
+
 ## Run 0
 
 * Mean square error: 21.93
