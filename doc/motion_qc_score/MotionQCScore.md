@@ -71,6 +71,21 @@ Model 1
 * Optimizer: Adam
 * Epochs: 55
 
+
+Model 4
+--------
+
+![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_04.png)
+
+* Standardized RMSE (on validation set): **0.8296178502909233**
+* Model architecture: AdamNet
+* Optimizer: Adam
+* Epochs: 256
+* Data source: */panfs/jay/groups/6/faird/shared/projects/motion-QC-generalization/code/bcp_and_elabe_qc_train_space-infant_unique.csv*
+* Model location: */home/feczk001/shared/data/AlexNet/motion-qc-model04.pt*
+* Training data: eLabe and BCP
+* Test data: eLabe and BCP
+
 Model 7
 -------
 
@@ -101,7 +116,7 @@ Model 6
 Model 5
 -------
 
-* Standardized RMSE (on validation set): **[undefined---sigma was zero**
+* Standardized RMSE (on validation set): **[undefined---sigma was zero]**
 * Mean squared error (on validation set): 0.3301
 * Model architecture: AlexNet3D_Dropout_Regression
 * Optimizer: SGD
