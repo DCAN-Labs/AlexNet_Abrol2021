@@ -109,6 +109,7 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
 
     def init_train_dl(self):
         train_ds = MRIMotionQcScoreDataset(
+            self.cli_args.qc_with_paths_csv,
             val_stride=10,
             is_val_set_bool=False)
 
@@ -127,6 +128,7 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
 
     def init_val_dl(self):
         val_ds = MRIMotionQcScoreDataset(
+            self.cli_args.qc_with_paths_csv,
             val_stride=10,
             is_val_set_bool=True)
 
