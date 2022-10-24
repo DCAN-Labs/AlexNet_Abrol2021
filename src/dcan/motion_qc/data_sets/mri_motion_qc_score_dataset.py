@@ -16,13 +16,12 @@ log.setLevel(logging.DEBUG)
 
 class MRIMotionQcScoreDataset(Dataset):
     def __init__(self,
-                 qc_with_paths_csv,
                  val_stride=10,
                  is_val_set_bool=None,
                  series_uid=None,
                  sortby_str='random',
                  ):
-        self.candidateInfo_list = copy.copy(get_candidate_info_list(qc_with_paths_csv))
+        self.candidateInfo_list = copy.copy(get_candidate_info_list())
 
         if series_uid:
             self.candidateInfo_list = [

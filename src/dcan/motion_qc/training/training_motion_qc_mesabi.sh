@@ -14,13 +14,13 @@
 #SBATCH -e motion-alex-net-training-%j.err
 #SBATCH -o motion-alex-net-training-%j.out
 
-#SBATCH -A feczk001
+#SBATCH -A faird
 
 cd /home/miran045/reine097/projects/AlexNet_Abrol2021 || exit
 export PYTHONPATH=PYTHONPATH:"/home/miran045/reine097/projects/AlexNet_Abrol2021/src"
 /home/miran045/reine097/projects/AlexNet_Abrol2021/venv/bin/python \
-  /home/miran045/reine097/projects/AlexNet_Abrol2021/src/dcan/motion_qc/training/training.py --num-workers=4 --batch-size=8 \
-  --tb-prefix="MRIMotionQcScore_bcp_and_elabe" --epochs=1 --model="AlexNet3D_Dropout_Regression" \
+  /home/miran045/reine097/projects/AlexNet_Abrol2021/src/dcan/motion_qc/training/training.py --num-workers=4 --batch-size=1 \
+  --tb-prefix="MRIMotionQcScore_bcp_and_elabe" --epochs=256 --model="AlexNet3D_Dropout_Regression" \
   --dset="MRIMotionQcScoreDataset" \
   --qc_with_paths_csv='/panfs/jay/groups/6/faird/shared/projects/motion-QC-generalization/code/bcp_and_elabe_qc_train_space-infant_unique.csv' \
   --model-save-location="/home/feczk001/shared/data/AlexNet/motion-qc-model04-new.pt" \
