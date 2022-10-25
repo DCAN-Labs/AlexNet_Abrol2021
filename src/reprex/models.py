@@ -32,7 +32,7 @@ class AlexNet3D_Dropout_Regression(nn.Module):
         )
 
         self.classifier = nn.Sequential(nn.Dropout(),
-                                        nn.Linear(9600, 64),
+                                        nn.Linear(9600, 64), #TODO likely will need to change back to 3456,64
                                         nn.ReLU(inplace=True),
                                         nn.Dropout(),
                                         nn.Linear(64, 1),

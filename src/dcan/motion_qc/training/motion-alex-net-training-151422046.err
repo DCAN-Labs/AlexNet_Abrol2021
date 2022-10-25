@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/faird/shared/projects/motion-QC-generalization/code/AlexNet_Abrol2021/src/dcan/motion_qc/training/training.py", line 15, in <module>
+    from dcan.motion_qc.data_sets.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
+  File "/home/faird/shared/projects/motion-QC-generalization/code/AlexNet_Abrol2021/src/dcan/motion_qc/data_sets/mri_motion_qc_score_dataset.py", line 8, in <module>
+    from dcan.motion_qc.data_sets.dsets import get_candidate_info_list, get_mri_raw_candidate
+  File "/home/faird/shared/projects/motion-QC-generalization/code/AlexNet_Abrol2021/src/dcan/motion_qc/data_sets/dsets.py", line 17, in <module>
+    raw_cache = getCache('dcan_raw')
+  File "/home/faird/shared/projects/motion-QC-generalization/code/AlexNet_Abrol2021/src/util/disk.py", line 87, in getCache
+    size_limit=3e11,
+  File "/home/umii/hendr522/SW/miniconda3/envs/AlexNet_Arbol2021/lib/python3.7/site-packages/diskcache/fanout.py", line 50, in __init__
+    for num in range(shards)
+  File "/home/umii/hendr522/SW/miniconda3/envs/AlexNet_Arbol2021/lib/python3.7/site-packages/diskcache/fanout.py", line 50, in <genexpr>
+    for num in range(shards)
+  File "/home/umii/hendr522/SW/miniconda3/envs/AlexNet_Arbol2021/lib/python3.7/site-packages/diskcache/core.py", line 499, in __init__
+    sql(query, (key, value))
+  File "/home/umii/hendr522/SW/miniconda3/envs/AlexNet_Arbol2021/lib/python3.7/site-packages/diskcache/core.py", line 666, in _execute_with_retry
+    return sql(statement, *args, **kwargs)
+sqlite3.OperationalError: attempt to write a readonly database
