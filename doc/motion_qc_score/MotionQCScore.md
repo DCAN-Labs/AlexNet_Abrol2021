@@ -113,6 +113,19 @@ Model 6
 * Dataset(s): BCP and eLabe
 * Location: */home/feczk001/shared/data/AlexNet/MotionQC/model06.pt*
 
+Model 10
+--------
+
+![Actual QC motion score vs. frequency of prediction](./img/qc_motion_score_prediction_model_10.png)
+
+* Standardized RMSE (on validation set): **2.171439941339671**
+* Mean squared error (on validation set): n.nnnn
+* Model architecture: AlexNet3D_Dropout_Regression
+* Optimizer: `Adam(self.model.parameters(), lr=0.0001, amsgrad=True)`
+* Epochs: 256
+* Dataset: eLabe: */panfs/jay/groups/6/faird/shared/projects/motion-QC-generalization/code/elabe_qc_train_space-infant_unique.csv*
+* Location: */home/feczk001/shared/data/AlexNet/motion_qc_elabe_00.pt*
+
 Model 5
 -------
 

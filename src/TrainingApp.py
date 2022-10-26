@@ -49,7 +49,7 @@ class TrainingApp:
 
     def initOptimizer(self):
         # return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
-        return Adam(self.model.parameters())
+        return Adam(self.model.parameters(), lr=0.0001, amsgrad=True)
 
     def get_args(self):
         parser = argparse.ArgumentParser()
@@ -64,10 +64,6 @@ class TrainingApp:
         parser.add_argument('--dset',
                             help="Name of Dataset.",
                             default='MRIMotionQcScoreDataset',
-                            )
-        parser.add_argument('--qc_with_paths_csv',
-                            help="Location of data CSV file",
-                            default='data/qc_img_paths.csv',
                             )
         parser.add_argument('comment',
                             help="Comment suffix for Tensorboard run.",
@@ -173,7 +169,7 @@ class TrainingApp:
         self.model = self.model.to(self.device, non_blocking=True)
         outputs_g = self.model(input_g)
 
-        loss_func = nn.MSELoss(reduction='none')
+        loss_func = nn.L1Loss(reduction='mean')
         loss_g = loss_func(
             outputs_g[0].squeeze(1),
             label_g,
