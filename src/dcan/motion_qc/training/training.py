@@ -70,11 +70,13 @@ class InfantMRIMotionQCTrainingApp(TrainingApp):
                 "get_output_distributions",
                 start_ndx=val_dl.num_workers,
             )
-            distributions = {1: [], 2: [], 3: [], 4: [], 5: []}
+            distributions = dict()
             for batch_ndx, batch_tup in batch_iter:
                 labels, n, predictions = self.get_labels_and_predictions(batch_tup)
                 for i in range(n):
                     label_int = int(labels[i].item())
+                    if label_int not in distributions:
+                        distributions[label_int] = []
                     distributions[label_int].append(predictions[i])
             for distribution in distributions:
                 distributions[distribution] = sorted(distributions[distribution])
