@@ -58,10 +58,10 @@ def get_prediction(model, mri_path, output_dir):
     new_mri_path=output_dir+'/'+filename+'_space-individual_den-BCP.nii.gz'
     
     # outside container
-    os.system('flirt -in {mri_path} -ref /panfs/jay/groups/6/faird/shared/projects/motion-QC-generalization/code/AlexNet_Abrol2021/data/BCP/sub-380510_ses-20mo_run-001_T1w.nii.gz -out {new_mri_path} -applyxfm -init /panfs/roc/msisoft/fsl/6.0.1/etc/flirtsch/ident.mat'.format(mri_path=mri_path,new_mri_path=new_mri_path))
+    #os.system('flirt -in {mri_path} -ref /panfs/jay/groups/6/faird/shared/projects/motion-QC-generalization/code/AlexNet_Abrol2021/data/BCP/sub-380510_ses-20mo_run-001_T1w.nii.gz -out {new_mri_path} -applyxfm -init /panfs/roc/msisoft/fsl/6.0.1/etc/flirtsch/ident.mat'.format(mri_path=mri_path,new_mri_path=new_mri_path))
 
     # within container
-    #os.system('flirt -in {mri_path} -ref /code/data/BCP/sub-380510_ses-20mo_run-001_T1w.nii.gz -out {new_mri_path} -applyxfm -init /opt/fsl-6.0.5.1/etc/flirtsch/ident.mat'.format(mri_path=mri_path,new_mri_path=new_mri_path))
+    os.system('flirt -in {mri_path} -ref /code/data/BCP/sub-380510_ses-20mo_run-001_T1w.nii.gz -out {new_mri_path} -applyxfm -init /opt/fsl-6.0.5.1/etc/flirtsch/ident.mat'.format(mri_path=mri_path,new_mri_path=new_mri_path))
     
     mri_nii_gz = nib.load(new_mri_path)
     mri_a = np.array(mri_nii_gz.get_fdata().copy(), dtype=np.float32)
