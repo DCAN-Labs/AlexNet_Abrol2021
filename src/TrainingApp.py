@@ -35,10 +35,10 @@ class TrainingApp:
         self.val_writer = None
         self.totalTrainingSamples_count = 0
         self.time_str = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
-        self.model = self.initModel()
-        self.optimizer = self.initOptimizer()
+        self.model = self.init_model()
+        self.optimizer = self.init_optimizer()
 
-    def initModel(self):
+    def init_model(self):
         model = AlexNet3D_Dropout_Regression()
         if self.use_cuda:
             log.info("Using CUDA; {} devices.".format(torch.cuda.device_count()))
@@ -47,7 +47,7 @@ class TrainingApp:
             model = model.to(self.device)
         return model
 
-    def initOptimizer(self):
+    def init_optimizer(self):
         # return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
         return Adam(self.model.parameters(), lr=0.0001, amsgrad=True)
 
@@ -60,10 +60,6 @@ class TrainingApp:
                             )
         parser.add_argument('--csv-data-file',
                             help="CSV data file.",
-                            )
-        parser.add_argument('--dset',
-                            help="Name of Dataset.",
-                            default='MRIMotionQcScoreDataset',
                             )
         parser.add_argument('comment',
                             help="Comment suffix for Tensorboard run.",
@@ -182,7 +178,9 @@ class TrainingApp:
         metrics_g[METRICS_LOSS_NDX, start_ndx:end_ndx] = \
             loss_g.detach()
 
-        return loss_g.mean()
+        mean_loss = loss_g.mean()
+
+        return mean_loss
 
     def do_training(self, epoch_ndx, train_dl):
         self.model.train()

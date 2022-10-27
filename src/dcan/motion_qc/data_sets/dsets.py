@@ -27,19 +27,19 @@ def get_candidate_info_list(qc_with_paths_csv):
     # We construct a set with all series_uids that are present on disk.
     # This will let us use the data, even if we haven't downloaded all of
     # the subsets yet.
-    # TODO Why is the path below hard-coded? That's not the only such CSV file.
-    # qc_with_paths_csv = '/panfs/jay/groups/6/faird/shared/projects/motion-QC-generalization/code/bcp_and_elabe_qc_train_space-infant_unique.csv'
-    # qc_with_paths_csv = 'data/eLabe/qc_img_paths.csv'
 
     with open(qc_with_paths_csv, "r") as f:
         candidate_info_list = []
         for row in list(csv.reader(f))[1:]:
             smri_path_str = row[0]
-            motion_q_cscore_int = float(row[1])
+            target = row[1]
+            if not target.lstrip("-").replace('.', '', 1).isdigit():
+                continue
+            motion_q_cscore_float = float(target)
 
             candidate_info_list.append(CandidateInfoTuple(
                 smri_path_str,
-                motion_q_cscore_int,
+                motion_q_cscore_float,
             ))
 
     candidate_info_list.sort(reverse=True, key=attrgetter('rating_int'))
