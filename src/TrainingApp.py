@@ -39,7 +39,7 @@ class TrainingApp:
         self.optimizer = self.init_optimizer()
 
     def init_model(self):
-        model = AlexNet3D_Dropout_Regression()
+        model = AlexNet3D_Dropout_Regression(3456)
         if self.use_cuda:
             log.info("Using CUDA; {} devices.".format(torch.cuda.device_count()))
             if torch.cuda.device_count() > 1:
@@ -49,7 +49,7 @@ class TrainingApp:
 
     def init_optimizer(self):
         # return SGD(self.model.parameters(), lr=0.001, momentum=0.99)
-        return Adam(self.model.parameters(), lr=0.0001, amsgrad=True)
+        return Adam(self.model.parameters())
 
     def get_args(self):
         parser = argparse.ArgumentParser()
@@ -165,7 +165,7 @@ class TrainingApp:
         self.model = self.model.to(self.device, non_blocking=True)
         outputs_g = self.model(input_g)
 
-        loss_func = nn.L1Loss(reduction='mean')
+        loss_func = nn.MSELoss(reduction='none')
         loss_g = loss_func(
             outputs_g[0].squeeze(1),
             label_g,

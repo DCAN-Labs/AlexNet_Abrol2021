@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class AlexNet3D_Dropout_Regression(nn.Module):
 
-    def __init__(self):
+    def __init__(self, input_size):
         super(AlexNet3D_Dropout_Regression, self).__init__()
         self.features = nn.Sequential(
             nn.Conv3d(1, 64, kernel_size=5, stride=2, padding=0),
@@ -32,7 +32,7 @@ class AlexNet3D_Dropout_Regression(nn.Module):
         )
 
         self.classifier = nn.Sequential(nn.Dropout(),
-                                        nn.Linear(3456, 64),
+                                        nn.Linear(input_size, 64),
                                         nn.ReLU(inplace=True),
                                         nn.Dropout(),
                                         nn.Linear(64, 1),

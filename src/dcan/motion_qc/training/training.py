@@ -1,12 +1,8 @@
 import torch
-import torch.nn as nn
 from torch.utils.data import DataLoader
 
 from TrainingApp import TrainingApp, log
-from dcan.loes_scoring.model.luna_model import LunaModel
-from dcan.models.AlexNet3D_Dropout_Regression_deeper import AlexNet3D_Dropout_Regression_deeper
 from dcan.motion_qc.data_sets.mri_motion_qc_score_dataset import MRIMotionQcScoreDataset
-from reprex.models import AlexNet3D_Dropout_Regression
 from util.util import enumerateWithEstimate
 
 

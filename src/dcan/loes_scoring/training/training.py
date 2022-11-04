@@ -1,4 +1,5 @@
 # Author: Paul Reiners
+import argparse
 import datetime
 import os
 import statistics
@@ -11,8 +12,8 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from TrainingApp import TrainingApp
-from dcan.loes_scoring.data_sets.dsets import LoesScoreDataset
-from dcan.loes_scoring.model.AlexNet3DDropoutRegression import AlexNet3DDropoutRegression
+from dcan.models.AlexNet3D_Dropout_Regression_deeper import AlexNet3D_Dropout_Regression_deeper
+from reprex.models import AlexNet3D_Dropout_Regression
 from util.logconf import logging
 from util.util import enumerateWithEstimate
 
@@ -31,6 +32,7 @@ METRICS_SIZE = 3
 class LoesScoringTrainingApp(TrainingApp):
     def __init__(self, sys_argv=None):
         super().__init__()
+        self.parser = argparse.ArgumentParser()
         self.parser.add_argument('--tb-prefix',
                                  default='loes_scoring',
                                  help="Data prefix to use for Tensorboard run. Defaults to loes_scoring.",
@@ -38,6 +40,19 @@ class LoesScoringTrainingApp(TrainingApp):
         self.parser.add_argument('--csv-data-file',
                                  help="CSV data file.",
                                  )
+        self.parser.add_argument('--anatomical-region',
+                                 help="Anatomical region to train on.",
+                                 )
+        self.parser.add_argument('--epochs',
+                            help='Number of epochs to train for',
+                            default=1,
+                            type=int,
+                            )
+        self.parser.add_argument('--num-workers',
+                            help='Number of worker processes for background data loading',
+                            default=8,
+                            type=int,
+                            )
         self.parser.add_argument('comment',
                                  help="Comment suffix for Tensorboard run.",
                                  nargs='?',
@@ -57,7 +72,8 @@ class LoesScoringTrainingApp(TrainingApp):
         self.optimizer = self.init_optimizer()
 
     def init_model(self):
-        model = AlexNet3DDropoutRegression()
+        log.info("AlexNet3D_Dropout_Regression_deeper as model.")
+        model = AlexNet3D_Dropout_Regression_deeper()
         if self.use_cuda:
             log.info("Using CUDA; {} devices.".format(torch.cuda.device_count()))
             if torch.cuda.device_count() > 1:
