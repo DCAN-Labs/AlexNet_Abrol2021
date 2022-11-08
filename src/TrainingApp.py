@@ -165,16 +165,18 @@ class TrainingApp:
         self.model = self.model.to(self.device, non_blocking=True)
         outputs_g = self.model(input_g)
 
-        def motion_qc_loss(y_true, y_pred):
-            loss_func = nn.MSELoss(reduction='none')
-            loss = loss_func(y_true, y_pred)
-            for i in range(len(loss)):
-                if y_true[i] <= 1.1 or y_true[i] >= 3.9:
-                    loss[i] = loss[i] * 2.0
+        def motion_qc_loss_with_weight(weight):
+            def motion_qc_loss(y_true, y_pred):
+                loss_func = nn.MSELoss(reduction='none')
+                loss = loss_func(y_true, y_pred)
+                for i in range(len(loss)):
+                    if y_true[i] <= 1.1 or y_true[i] >= 3.9:
+                        loss[i] = loss[i] * weight
 
-            return loss
+                return loss
+            return motion_qc_loss
 
-        loss_g = motion_qc_loss(
+        loss_g = motion_qc_loss_with_weight(4.0)(
             label_g,
             outputs_g[0].squeeze(1),
         )

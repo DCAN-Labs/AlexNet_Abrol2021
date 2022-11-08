@@ -48,7 +48,6 @@ def get_candidate_info_list(qc_with_paths_csv):
 
 
 def normalize_array(array):
-    # new_array = 2 * (array - array.min()) / (array.max() - array.min()) - 1
     new_array = (array - array.min()) / (array.max() - array.min())
 
     return new_array
