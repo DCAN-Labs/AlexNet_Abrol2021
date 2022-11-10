@@ -5,6 +5,7 @@ from tensorflow import keras
 DefaultConv3D = partial(keras.layers.Conv3D, kernel_size=3, strides=1,
                         padding="SAME", use_bias=False)
 
+
 class ResidualUnit(keras.layers.Layer):
     def __init__(self, filters, strides=1, activation="relu", **kwargs):
         super().__init__(**kwargs)
@@ -21,7 +22,7 @@ class ResidualUnit(keras.layers.Layer):
                 DefaultConv3D(filters, kernel_size=1, strides=strides),
                 keras.layers.BatchNormalization()]
 
-    def call(self, inputs):
+    def call(self, inputs, *args, **kwargs):
         Z = inputs
         for layer in self.main_layers:
             Z = layer(Z)
@@ -29,6 +30,7 @@ class ResidualUnit(keras.layers.Layer):
         for layer in self.skip_layers:
             skip_Z = layer(skip_Z)
         return self.activation(Z + skip_Z)
+
 
 def get_model():
     model = keras.models.Sequential()
