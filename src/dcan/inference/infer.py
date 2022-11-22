@@ -24,7 +24,7 @@ def infer_bcp_motion_qc_score(model_weights_file, mri_path):
 
 def get_prediction(model, mri_path):
     filename=os.path.basename(mri_path).split('.nii.gz')[0]
-    new_filename=filename+'_space-individual_den-MNI1mm.nii.gz
+    new_filename=filename+'_space-individual_den-MNI1mm.nii.gz'
     os.system('flirt -in {mri_path} -ref /code/data/INFANT_MNI_T1_1mm.nii.gz -out {new_mri_path} -applyxfm'.format(mri_path=mri_path,new_mri_path=new_filename))
     mri_nii_gz = nib.load(mri_path)
     mri_a = np.array(mri_nii_gz.get_fdata().copy(), dtype=np.float32)
