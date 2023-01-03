@@ -3,8 +3,9 @@ import pandas as pd
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import sys
+sys.path.insert(0,'../../../../reprex/')
 import utils as ut
-from models import AlexNet3D_Dropout, AlexNet3D_Dropout_Regression
+from models import AlexNet3D_Dropout_Regression
 import torch
 from torch.autograd import Variable
 
