@@ -5,7 +5,7 @@ import sys
 import torch
 
 from dcan.inference.infer import get_prediction
-from reprex.models import AlexNet3D_Dropout_Regression
+from reprex.models import AlexNet3DDropoutRegression
 from util.logconf import logging
 
 log = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ log.setLevel(logging.DEBUG)
 
 
 def infer_multiple_files(model_weights_fl, csv_file):
-    model = AlexNet3D_Dropout_Regression()
+    model = AlexNet3DDropoutRegression(3456)
     model.load_state_dict(torch.load(model_weights_fl,
                                      map_location='cpu'))
     model.eval()
