@@ -10,7 +10,7 @@ def main(input_file, output_file):
 
         d = ast.literal_eval(data)
 
-        score = 0
+        score = 1
         while score in d:
             plt.hist(d[score],
                      alpha=0.5,
